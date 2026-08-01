@@ -6,16 +6,18 @@
 <title>Yutti's Workout Routine</title>
 <style>
   :root {
-    --bg: #0e1013;
-    --panel: #171a1f;
-    --panel-2: #1e222a;
-    --line: #2a2f39;
+    --bg: #0b0d10;
+    --panel: #14171d;
+    --panel-2: #1b1f27;
+    --line: #262b34;
     --text: #e8eaed;
     --dim: #9aa3af;
-    --accent: #f5a524;
+    --accent: #ffb020;
     --accent-2: #4aa8ff;
     --good: #38d39f;
-    --radius: 10px;
+    --grad: linear-gradient(135deg, #ffb020, #ff6a3d);
+    --radius: 14px;
+    --nav-h: 66px;
   }
   * { box-sizing: border-box; }
   body {
@@ -27,150 +29,209 @@
   }
   .wrap { max-width: 960px; margin: 0 auto; padding: 0 16px 120px; }
 
-  header { border-bottom: 1px solid var(--line); background: var(--panel); }
-  .brand { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; padding: 18px 0 10px; }
-  .brand h1 { margin: 0; font-size: 22px; letter-spacing: -0.4px; }
-  .brand h1 span { color: var(--accent); }
-  .brand p { margin: 0; color: var(--dim); font-size: 13px; }
-
-  nav { display: flex; gap: 6px; padding-bottom: 12px; flex-wrap: wrap; }
-  nav button {
-    background: var(--panel-2); color: var(--dim); border: 1px solid var(--line);
-    padding: 8px 16px; border-radius: 999px; font: inherit; font-size: 14px; cursor: pointer;
+  /* --- header --- */
+  header {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(14,16,19,.82); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--line);
   }
-  nav button[aria-selected="true"] { background: var(--accent); color: #12140f; border-color: var(--accent); font-weight: 600; }
+  .brand { display: flex; align-items: center; padding: 16px 0; }
+  .brand h1 { margin: 0; font-size: clamp(28px, 6.5vw, 46px); font-weight: 800; letter-spacing: -1.2px; line-height: 1; }
+  .brand h1 span { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+  /* --- nav: top pills on desktop, bottom bar on mobile --- */
+  nav { display: flex; gap: 8px; padding-bottom: 14px; }
+  nav button {
+    display: flex; align-items: center; gap: 7px;
+    background: var(--panel-2); color: var(--dim); border: 1px solid var(--line);
+    padding: 9px 16px; border-radius: 999px; font: inherit; font-size: 14px; cursor: pointer;
+    transition: color .15s, border-color .15s;
+  }
+  nav button .ico { font-size: 15px; line-height: 1; }
+  nav button:hover { color: var(--text); }
+  nav button[aria-selected="true"] { background: var(--grad); color: #12140f; border-color: transparent; font-weight: 700; }
 
   section[hidden] { display: none; }
-  h2 { font-size: 18px; margin: 28px 0 4px; }
-  .sub { color: var(--dim); font-size: 14px; margin: 0 0 16px; }
+  .eyebrow { text-transform: uppercase; letter-spacing: 1.6px; font-size: 12px; font-weight: 700; color: var(--accent); margin: 30px 0 2px; }
+  h2 { font-size: 24px; font-weight: 800; letter-spacing: -.5px; margin: 2px 0 4px; }
+  .sub { color: var(--dim); font-size: 14px; margin: 0 0 18px; max-width: 70ch; }
 
   /* --- day cards --- */
   .day {
     background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
-    margin: 16px 0; overflow: hidden;
+    margin: 14px 0; overflow: hidden;
   }
   .day.optional { border-style: dashed; opacity: .92; }
   .day > summary {
-    padding: 14px 16px; cursor: pointer; list-style: none;
+    padding: 16px; cursor: pointer; list-style: none;
     display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
   }
   .day > summary::-webkit-details-marker { display: none; }
-  .day > summary::before { content: "▸"; color: var(--dim); }
+  .day > summary::before { content: "▸"; color: var(--accent); font-size: 13px; }
   .day[open] > summary::before { content: "▾"; }
-  .day summary b { font-size: 16px; }
-  .day summary .tag { font-size: 11px; background: var(--panel-2); border: 1px solid var(--line); color: var(--dim); border-radius: 999px; padding: 2px 9px; }
-  .day.optional summary .tag { color: var(--accent); border-color: var(--accent); }
-  .day summary .why { color: var(--dim); font-size: 13px; font-weight: 400; flex-basis: 100%; padding-left: 18px; }
+  .day summary .day-name { font-size: 17px; font-weight: 700; }
+  .day summary .tag { font-size: 11px; background: var(--panel-2); border: 1px solid var(--line); color: var(--dim); border-radius: 999px; padding: 3px 10px; }
+  .day summary .why { color: var(--dim); font-size: 13px; font-weight: 400; flex-basis: 100%; padding-left: 20px; }
   .daybody { padding: 0 16px 16px; }
 
-  .vol { display: flex; gap: 6px; flex-wrap: wrap; margin: 0 0 12px; padding-left: 2px; }
+  .vol { display: flex; gap: 6px; flex-wrap: wrap; margin: 0 0 14px; padding-left: 2px; }
   .vol span {
     font-size: 11px; color: var(--dim); background: var(--panel-2);
-    border: 1px solid var(--line); border-radius: 999px; padding: 2px 9px;
+    border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px;
   }
 
-  .tablewrap { overflow-x: auto; }
-  table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 460px; }
-  th { text-align: left; color: var(--dim); font-weight: 500; font-size: 12px; text-transform: uppercase; letter-spacing: .5px; padding: 6px 8px; border-bottom: 1px solid var(--line); }
-  td { padding: 9px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
-  tr:last-child td { border-bottom: none; }
-  td.ex a { color: var(--text); text-decoration: none; border-bottom: 1px dotted var(--dim); }
-  td.ex a:hover { color: var(--accent-2); border-bottom-color: var(--accent-2); }
-  td.ex .note { display: block; color: var(--dim); font-size: 12px; margin-top: 2px; }
-  td.pre { white-space: nowrap; font-variant-numeric: tabular-nums; }
-  td.load { color: var(--good); font-weight: 600; white-space: nowrap; }
-  td.load small { display: block; color: var(--dim); font-weight: 400; font-size: 11px; }
-  tr.key td.ex a { color: var(--accent); }
-  tr.done td { opacity: .4; }
-  tr.dim { opacity: .25; }
-  input[type=checkbox] { accent-color: var(--good); width: 17px; height: 17px; cursor: pointer; }
-  .rest-btn {
-    background: var(--panel-2); color: var(--dim); border: 1px solid var(--line);
-    border-radius: 6px; padding: 3px 9px; font: inherit; font-size: 12px; cursor: pointer; white-space: nowrap;
+  /* --- exercise rows (responsive, no table) --- */
+  .exlist { display: flex; flex-direction: column; gap: 8px; }
+  .exrow {
+    display: grid; grid-template-columns: 26px 1fr auto; gap: 12px; align-items: center;
+    background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px;
+    padding: 11px 13px; position: relative;
   }
-  .rest-btn:hover { color: var(--accent-2); border-color: var(--accent-2); }
+  .exrow.key { border-color: transparent; }
+  .exrow.key::before {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+    background: var(--grad); border-radius: 10px 0 0 10px;
+  }
+  .exrow .chk { display: flex; align-items: center; justify-content: center; margin: 0; }
+  input[type=checkbox] { accent-color: var(--good); width: 18px; height: 18px; cursor: pointer; }
+  .exrow .ex a { color: var(--text); text-decoration: none; font-weight: 500; border-bottom: 1px dotted var(--dim); }
+  .exrow .ex a:hover { color: var(--accent-2); border-bottom-color: var(--accent-2); }
+  .exrow.key .ex a { color: var(--accent); }
+  .exrow .ex .note { display: block; color: var(--dim); font-size: 12px; margin-top: 3px; }
+  .exrow .meta { display: flex; align-items: center; gap: 16px; }
+  .meta .wt { color: var(--good); font-weight: 700; font-variant-numeric: tabular-nums; min-width: 118px; white-space: nowrap; font-size: 14px; }
+  .meta .wt small { display: block; color: var(--dim); font-weight: 400; font-size: 11px; }
+  .meta .sr { color: var(--dim); font-variant-numeric: tabular-nums; min-width: 84px; white-space: nowrap; font-size: 14px; }
+  .meta .rest { min-width: 86px; text-align: right; }
+  .exrow.done { opacity: .4; }
+  .exrow.dim { opacity: .22; }
+  .rest-btn {
+    background: var(--panel); color: var(--dim); border: 1px solid var(--line);
+    border-radius: 7px; padding: 5px 11px; font: inherit; font-size: 12px; cursor: pointer; white-space: nowrap;
+  }
+  .rest-btn:hover { color: var(--accent); border-color: var(--accent); }
 
   /* --- library --- */
-  .chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+  .chips {
+    display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 18px;
+    position: sticky; top: 70px; z-index: 10; padding: 8px 0;
+    background: rgba(11,13,16,.9); backdrop-filter: blur(8px);
+  }
   .chips button {
     background: var(--panel-2); color: var(--dim); border: 1px solid var(--line);
-    padding: 6px 13px; border-radius: 999px; font: inherit; font-size: 13px; cursor: pointer;
+    padding: 7px 14px; border-radius: 999px; font: inherit; font-size: 13px; cursor: pointer;
   }
-  .chips button[aria-pressed="true"] { background: var(--accent-2); color: #06121f; border-color: var(--accent-2); font-weight: 600; }
+  .chips button[aria-pressed="true"] { background: var(--accent-2); color: #06121f; border-color: var(--accent-2); font-weight: 700; }
 
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
-  .card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; }
-  .card h3 { margin: 0 0 2px; font-size: 15px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+  .card {
+    background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px;
+    transition: transform .15s, border-color .15s;
+  }
+  .card:hover { transform: translateY(-2px); border-color: #3a414d; }
+  .card h3 { margin: 0 0 3px; font-size: 15px; font-weight: 700; }
   .card h3 a { color: var(--text); text-decoration: none; }
   .card h3 a:hover { color: var(--accent-2); }
-  .card .meta { color: var(--dim); font-size: 12px; margin-bottom: 4px; }
-  .card .load { color: var(--good); font-size: 12px; font-weight: 600; margin-bottom: 9px; }
+  .card .meta { color: var(--dim); font-size: 12px; margin-bottom: 5px; }
+  .card .load { color: var(--good); font-size: 12px; font-weight: 700; margin-bottom: 10px; }
   .card ul { margin: 0; padding-left: 17px; font-size: 13px; color: #cbd2dc; }
-  .card ul li { margin-bottom: 3px; }
-  .card .miss { margin: 9px 0 0; font-size: 12px; color: #ffb4a2; }
-  .card .yt { display: inline-block; margin-top: 9px; font-size: 12px; color: var(--accent-2); text-decoration: none; }
+  .card ul li { margin-bottom: 4px; }
+  .card .miss { margin: 10px 0 0; font-size: 12px; color: #ffb4a2; }
+  .card .yt { display: inline-block; margin-top: 10px; font-size: 12px; color: var(--accent-2); text-decoration: none; }
   .card .yt:hover { text-decoration: underline; }
 
   /* --- info panel --- */
-  .info { background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: var(--radius); padding: 14px 16px; margin: 16px 0; }
-  .info h3 { margin: 0 0 6px; font-size: 14px; }
+  .info { background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: var(--radius); padding: 16px 18px; margin: 16px 0; }
+  .info h3 { margin: 0 0 8px; font-size: 14px; }
   .info p, .info li { font-size: 14px; color: #cbd2dc; }
   .info p { margin: 0 0 8px; }
   .info ul { margin: 0; padding-left: 18px; }
-  .info li { margin-bottom: 4px; }
+  .info li { margin-bottom: 5px; }
 
   /* --- cut calculator --- */
-  .calc { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; max-width: 520px; }
+  .calc { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; max-width: 520px; }
   .calc .row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
   .calc label { flex: 0 0 130px; font-size: 14px; color: var(--dim); }
   .calc input, .calc select {
     flex: 1; background: var(--panel-2); color: var(--text); border: 1px solid var(--line);
-    border-radius: 8px; padding: 9px 11px; font: inherit; font-size: 15px;
+    border-radius: 9px; padding: 10px 12px; font: inherit; font-size: 15px;
   }
+  .calc input:focus, .calc select:focus { outline: none; border-color: var(--accent); }
   .out { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px,1fr)); gap: 10px; margin: 18px 0 6px; }
-  .out .box { background: var(--panel-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 14px; }
+  .out .box { background: var(--panel-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; }
   .out .box .k { font-size: 12px; color: var(--dim); }
-  .out .box .v { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
-  .out .box.hl { border-color: var(--accent); }
-  .out .box.hl .v { color: var(--accent); }
+  .out .box .v { font-size: 26px; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -.5px; }
+  .out .box.hl { border-color: transparent; background: linear-gradient(135deg, rgba(255,176,32,.16), rgba(255,106,61,.16)); box-shadow: inset 0 0 0 1px var(--accent); }
+  .out .box.hl .v { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
   .out .box.pro .v { color: var(--good); }
   .disc { color: var(--dim); font-size: 12px; margin-top: 10px; }
 
   /* --- timer --- */
   #dock {
-    position: fixed; left: 0; right: 0; bottom: 0; background: var(--panel);
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 60; background: var(--panel);
     border-top: 1px solid var(--line); padding: 10px 16px;
-    display: flex; align-items: center; gap: 12px; justify-content: center;
+    display: flex; align-items: center; gap: 14px; justify-content: center;
   }
   #dock[hidden] { display: none; }
-  #clock { font-size: 30px; font-variant-numeric: tabular-nums; font-weight: 600; letter-spacing: 1px; }
+  .ringwrap { position: relative; width: 56px; height: 56px; display: grid; place-items: center; }
+  .ring-svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .ring-bg { fill: none; stroke: var(--line); stroke-width: 5; }
+  .ring-fg {
+    fill: none; stroke: url(#ringgrad); stroke-width: 5; stroke-linecap: round;
+    stroke-dasharray: 163.36; stroke-dashoffset: 163.36;
+    transform: rotate(-90deg); transform-origin: center;
+    transition: stroke-dashoffset .3s linear;
+  }
+  #clock { font-size: 19px; font-variant-numeric: tabular-nums; font-weight: 800; letter-spacing: .5px; }
   #clock.ring { color: var(--good); }
-  #dock .lbl { color: var(--dim); font-size: 13px; margin-right: auto; }
+  #dock .lbl { color: var(--dim); font-size: 13px; margin-right: auto; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
   #dock button {
     background: var(--panel-2); color: var(--text); border: 1px solid var(--line);
-    border-radius: 8px; padding: 7px 14px; font: inherit; font-size: 14px; cursor: pointer;
+    border-radius: 9px; padding: 9px 15px; font: inherit; font-size: 14px; cursor: pointer;
   }
-  #dock button:hover { border-color: var(--accent-2); }
+  #dock button:hover { border-color: var(--accent); }
 
-  .presets { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0 0; }
+  .presets { display: flex; gap: 8px; flex-wrap: wrap; margin: 14px 0 0; }
   .presets button {
     background: var(--panel-2); color: var(--text); border: 1px solid var(--line);
-    border-radius: 8px; padding: 10px 18px; font: inherit; cursor: pointer;
+    border-radius: 10px; padding: 12px 20px; font: inherit; font-size: 15px; cursor: pointer;
   }
   .presets button:hover { border-color: var(--accent); color: var(--accent); }
 
-  @media (max-width: 520px) {
-    #dock .lbl { display: none; }
-    .brand h1 { font-size: 19px; }
-    .calc label { flex-basis: 96px; }
+  /* --- mobile: nav becomes a bottom tab bar --- */
+  @media (max-width: 640px) {
+    .wrap { padding-bottom: calc(var(--nav-h) + 40px); }
+    .brand { padding: 14px 0; }
+    .brand h1 { letter-spacing: -.8px; }
+    header nav {
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 70; height: var(--nav-h);
+      margin: 0; padding: 0 0 env(safe-area-inset-bottom, 0); gap: 0;
+      background: var(--panel); border-top: 1px solid var(--line);
+    }
+    nav button {
+      flex: 1; flex-direction: column; gap: 3px; justify-content: center;
+      background: none; border: none; border-radius: 0; padding: 8px 0; font-size: 11px; color: var(--dim);
+    }
+    nav button .ico { font-size: 20px; }
+    nav button[aria-selected="true"] { background: none; color: var(--accent); font-weight: 700; box-shadow: inset 0 3px 0 -1px var(--accent); }
+    nav button[aria-selected="true"] .lab { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    #dock { bottom: var(--nav-h); padding-bottom: calc(10px + env(safe-area-inset-bottom, 0)); }
+    .chips { position: static; background: none; padding: 0; }
+    .exrow { grid-template-columns: 24px 1fr; grid-template-areas: "chk ex" "meta meta"; row-gap: 10px; }
+    .exrow .chk { grid-area: chk; }
+    .exrow .ex { grid-area: ex; }
+    .exrow .meta { grid-area: meta; justify-content: flex-start; gap: 14px; flex-wrap: wrap; }
+    .meta .wt, .meta .sr, .meta .rest { min-width: 0; }
+    .meta .rest { text-align: left; }
   }
 
   @media print {
     :root { --bg:#fff; --panel:#fff; --panel-2:#fff; --line:#bbb; --text:#000; --dim:#555; }
+    header { position: static; }
     nav, #dock, .chips, .rest-btn, .info, .card .yt { display: none !important; }
     .day { break-inside: avoid; page-break-after: always; border: none; }
     .day .daybody { display: block !important; }
-    table { min-width: 0; }
+    .exrow { border: none; background: none; }
     a { color: #000; text-decoration: none; }
   }
 </style>
@@ -181,13 +242,12 @@
   <div class="wrap">
     <div class="brand">
       <h1>Yutti's <span>Workout</span> Routine</h1>
-      <p>4-day push/pull · +optional full day · built from your gym</p>
     </div>
     <nav>
-      <button id="tab-program" aria-selected="true">Program</button>
-      <button id="tab-library" aria-selected="false">Library</button>
-      <button id="tab-timer"   aria-selected="false">Timer</button>
-      <button id="tab-cut"     aria-selected="false">Cut</button>
+      <button id="tab-program" aria-selected="true"><span class="ico">🏋️</span><span class="lab">Program</span></button>
+      <button id="tab-library" aria-selected="false"><span class="ico">📚</span><span class="lab">Library</span></button>
+      <button id="tab-timer"   aria-selected="false"><span class="ico">⏱️</span><span class="lab">Timer</span></button>
+      <button id="tab-cut"     aria-selected="false"><span class="ico">🔥</span><span class="lab">Cut</span></button>
     </nav>
   </div>
 </header>
@@ -195,6 +255,7 @@
 <main class="wrap">
 
   <section id="view-program">
+    <p class="eyebrow">The split</p>
     <h2>Your split</h2>
     <p class="sub">Mon Push A · Tue Pull A · Thu Push B · Fri Pull B — each muscle twice a week. Side delts on <b>both push days</b> for width; traps, rear delts and arms on the pull days. Each day ends with a light antagonist pump — biceps on push days, triceps on pull days — so you look full for posing without cooking tomorrow's muscle.</p>
 
@@ -211,6 +272,7 @@
   </section>
 
   <section id="view-library" hidden>
+    <p class="eyebrow">Reference</p>
     <h2>Exercise library</h2>
     <p class="sub">Every move in your routine — form cues, the mistake that kills it, and your current working weight. Names link to a video search.</p>
     <div class="chips" id="chips"></div>
@@ -218,6 +280,7 @@
   </section>
 
   <section id="view-timer" hidden>
+    <p class="eyebrow">Between sets</p>
     <h2>Rest timer</h2>
     <p class="sub">Runs in the dock at the bottom — keeps counting while you browse other tabs. At zero it plays a loud alarm and vibrates your phone. Settings save on this device. On mobile keep this tab open (screen-awake helps) — background tabs slow the countdown.</p>
 
@@ -242,6 +305,7 @@
   </section>
 
   <section id="view-cut" hidden>
+    <p class="eyebrow">Nutrition</p>
     <h2>Cutting calculator</h2>
     <p class="sub">Estimates the calories and protein to lose fat while holding onto muscle. Uses the Mifflin-St Jeor formula. Your numbers save on this device.</p>
     <div class="calc">
@@ -273,7 +337,19 @@
 
 <div id="dock" hidden>
   <span class="lbl" id="dock-lbl">Rest</span>
-  <span id="clock">0:00</span>
+  <div class="ringwrap">
+    <svg class="ring-svg" viewBox="0 0 60 60" aria-hidden="true">
+      <defs>
+        <linearGradient id="ringgrad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#ffb020"/>
+          <stop offset="1" stop-color="#ff6a3d"/>
+        </linearGradient>
+      </defs>
+      <circle class="ring-bg" cx="30" cy="30" r="26"/>
+      <circle class="ring-fg" id="ring-fg" cx="30" cy="30" r="26"/>
+    </svg>
+    <span id="clock">0:00</span>
+  </div>
   <button id="t-add">+30s</button>
   <button id="t-stop">Stop</button>
 </div>
@@ -453,29 +529,28 @@ function renderProgram() {
     const rows = d.work.map((w, wi) => {
       const e = byId[w.id];
       const load = e.log ? e.log.split(" · ") : ["—"];
-      return `<tr data-muscle="${e.muscle}" data-key="${di}:${wi}" class="${w.key ? "key" : ""}">
-        <td><input type="checkbox" aria-label="Mark ${e.name} done"></td>
-        <td class="ex">
+      return `<div class="exrow ${w.key ? "key" : ""}" data-muscle="${e.muscle}" data-key="${di}:${wi}">
+        <label class="chk"><input type="checkbox" aria-label="Mark ${e.name} done"></label>
+        <div class="ex">
           <a href="${yt(e.name)}" target="_blank" rel="noopener">${e.name}</a>
           ${w.note ? `<span class="note">${w.note}</span>` : ""}
-        </td>
-        <td class="load">${load[0]}${load[1] ? `<small>${load[1]}</small>` : ""}</td>
-        <td class="pre">${w.sets} × ${w.reps}</td>
-        <td class="pre"><button class="rest-btn" data-rest="${w.rest}">▶ ${fmtRest(w.rest)}</button></td>
-      </tr>`;
+        </div>
+        <div class="meta">
+          <span class="wt">${load[0]}${load[1] ? `<small>${load[1]}</small>` : ""}</span>
+          <span class="sr">${w.sets} × ${w.reps}</span>
+          <span class="rest"><button class="rest-btn" data-rest="${w.rest}">▶ ${fmtRest(w.rest)}</button></span>
+        </div>
+      </div>`;
     }).join("");
 
     return `<details class="day ${d.optional ? "optional" : ""}" ${di === 0 ? "open" : ""}>
       <summary>
-        <b>${d.name}</b> <span class="tag">${d.day}</span>
+        <span class="day-name">${d.name}</span> <span class="tag">${d.day}</span>
         <span class="why">${d.why}</span>
       </summary>
       <div class="daybody">
         <div class="vol">${chips}</div>
-        <div class="tablewrap"><table>
-          <thead><tr><th></th><th>Exercise</th><th>Weight</th><th>Sets × Reps</th><th>Rest</th></tr></thead>
-          <tbody>${rows}</tbody>
-        </table></div>
+        <div class="exlist">${rows}</div>
       </div>
     </details>`;
   }).join("");
@@ -508,8 +583,8 @@ function renderLibrary() {
       <a class="yt" href="${yt(e.name)}" target="_blank" rel="noopener">▶ Watch demo</a>
     </div>`).join("");
 
-  document.querySelectorAll("#days tbody tr").forEach(tr => {
-    tr.classList.toggle("dim", filter !== "all" && tr.dataset.muscle !== filter);
+  document.querySelectorAll("#days .exrow").forEach(row => {
+    row.classList.toggle("dim", filter !== "all" && row.dataset.muscle !== filter);
   });
 }
 
@@ -548,27 +623,27 @@ function loadChecks() {
 function restoreChecks() {
   const { ids } = loadChecks();
   ids.forEach(k => {
-    const tr = document.querySelector(`tr[data-key="${k}"]`);
-    if (tr) { tr.querySelector("input").checked = true; tr.classList.add("done"); }
+    const row = document.querySelector(`.exrow[data-key="${k}"]`);
+    if (row) { row.querySelector("input").checked = true; row.classList.add("done"); }
   });
 }
 
 document.addEventListener("change", ev => {
   const box = ev.target;
   if (box.type !== "checkbox") return;
-  const tr = box.closest("tr");
-  if (!tr || !tr.dataset.key) return;
-  tr.classList.toggle("done", box.checked);
+  const row = box.closest(".exrow");
+  if (!row || !row.dataset.key) return;
+  row.classList.toggle("done", box.checked);
   const state = loadChecks();
   const set = new Set(state.ids);
-  box.checked ? set.add(tr.dataset.key) : set.delete(tr.dataset.key);
+  box.checked ? set.add(row.dataset.key) : set.delete(row.dataset.key);
   localStorage.setItem(STORE, JSON.stringify({ date: today(), ids: [...set] }));
 });
 
 /* ---------------------------------------------------------------
    Rest timer
 --------------------------------------------------------------- */
-let endAt = 0, tick = null;
+let endAt = 0, tick = null, totalSec = 0;
 
 /* Shared AudioContext — created/resumed on a user gesture so iOS lets it play. */
 let audioCtx = null;
@@ -670,6 +745,12 @@ document.addEventListener("visibilitychange", () => {
 function paint() {
   const left = Math.max(0, Math.round((endAt - Date.now()) / 1000));
   $("#clock").textContent = Math.floor(left / 60) + ":" + String(left % 60).padStart(2, "0");
+  const fg = $("#ring-fg");
+  if (fg) {
+    const circ = 2 * Math.PI * 26;
+    const frac = totalSec > 0 ? Math.max(0, Math.min(1, left / totalSec)) : 0;
+    fg.style.strokeDashoffset = String(circ * (1 - frac));
+  }
   if (left === 0) {
     clearInterval(tick); tick = null;
     $("#clock").classList.add("ring");
@@ -682,6 +763,7 @@ function paint() {
 
 function startTimer(sec) {
   ensureAudio();
+  totalSec = sec;
   endAt = Date.now() + sec * 1000;
   $("#dock").hidden = false;
   $("#clock").classList.remove("ring");
@@ -706,7 +788,7 @@ document.addEventListener("click", ev => {
 $("#t-stop").addEventListener("click", stopTimer);
 $("#t-add").addEventListener("click", () => {
   if (!tick) startTimer(30);
-  else { endAt += 30000; $("#clock").classList.remove("ring"); paint(); }
+  else { endAt += 30000; totalSec += 30; $("#clock").classList.remove("ring"); paint(); }
 });
 
 $("#presets").innerHTML = [5, 30, 45, 60, 90, 120, 150, 180]
