@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Yutti's Workout Routine</title>
+<style>
+  :root {
+    --bg: #0e1013;
+    --panel: #171a1f;
+    --panel-2: #1e222a;
+    --line: #2a2f39;
+    --text: #e8eaed;
+    --dim: #9aa3af;
+    --accent: #f5a524;
+    --accent-2: #4aa8ff;
+    --good: #38d39f;
+    --radius: 10px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    -webkit-text-size-adjust: 100%;
+  }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 0 16px 120px; }
+
+  header { border-bottom: 1px solid var(--line); background: var(--panel); }
+  .brand { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; padding: 18px 0 10px; }
+  .brand h1 { margin: 0; font-size: 22px; letter-spacing: -0.4px; }
+  .brand h1 span { color: var(--accent); }
+  .brand p { margin: 0; color: var(--dim); font-size: 13px; }
+
+  nav { display: flex; gap: 6px; padding-bottom: 12px; flex-wrap: wrap; }
+  nav button {
+    background: var(--panel-2); color: var(--dim); border: 1px solid var(--line);
+    padding: 8px 16px; border-radius: 999px; font: inherit; font-size: 14px; cursor: pointer;
+  }
+  nav button[aria-selected="true"] { background: var(--accent); color: #12140f; border-color: var(--accent); font-weight: 600; }
+
+  section[hidden] { display: none; }
+  h2 { font-size: 18px; margin: 28px 0 4px; }
+  .sub { color: var(--dim); font-size: 14px; margin: 0 0 16px; }
+
+  /* --- day cards --- */
+  .day {
+    background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+    margin: 16px 0; overflow: hidden;
+  }
+  .day.optional { border-style: dashed; opacity: .92; }
+  .day > summary {
+    padding: 14px 16px; cursor: pointer; list-style: none;
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  }
+  .day > summary::-webkit-details-marker { display: none; }
+  .day > summary::before { content: "▸"; color: var(--dim); }
+  .day[open] > summary::before { content: "▾"; }
+  .day summary b { font-size: 16px; }
+  .day summary .tag { font-size: 11px; background: var(--panel-2); border: 1px solid var(--line); color: var(--dim); border-radius: 999px; padding: 2px 9px; }
+  .day.optional summary .tag { color: var(--accent); border-color: var(--accent); }
+  .day summary .why { color: var(--dim); font-size: 13px; font-weight: 400; flex-basis: 100%; padding-left: 18px; }
+  .daybody { padding: 0 16px 16px; }
+
+  .vol { display: flex; gap: 6px; flex-wrap: wrap; margin: 0 0 12px; padding-left: 2px; }
+  .vol span {
+    font-size: 11px; color: var(--dim); background: var(--panel-2);
+    border: 1px solid var(--line); border-radius: 999px; padding: 2px 9px;
+  }
+
+  .tablewrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 460px; }
+  th { text-align: left; color: var(--dim); font-weight: 500; font-size: 12px; text-transform: uppercase; letter-spacing: .5px; padding: 6px 8px; border-bottom: 1px solid var(--line); }
+  td { padding: 9px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  td.ex a { color: var(--text); text-decoration: none; border-bottom: 1px dotted var(--dim); }
+  td.ex a:hover { color: var(--accent-2); border-bottom-color: var(--accent-2); }
+  td.ex .note { display: block; color: var(--dim); font-size: 12px; margin-top: 2px; }
+  td.pre { white-space: nowrap; font-variant-numeric: tabular-nums; }
+  td.load { color: var(--good); font-weight: 600; white-space: nowrap; }
+  td.load small { display: block; color: var(--dim); font-weight: 400; font-size: 11px; }
+  tr.key td.ex a { color: var(--accent); }
+  tr.done td { opacity: .4; }
+  tr.dim { opacity: .25; }
+  input[type=checkbox] { accent-color: var(--good); width: 17px; height: 17px; cursor: pointer; }
+  .rest-btn {
+    background: var(--panel-2); color: var(--dim); border: 1px solid var(--line);
+    border-radius: 6px; padding: 3px 9px; font: inherit; font-size: 12px; cursor: pointer; white-space: nowrap;
+  }
+  .rest-btn:hover { color: var(--accent-2); border-color: var(--accent-2); }
+
+  /* --- library --- */
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+  .chips button {
+    background: var(--panel-2); color: var(--dim); border: 1px solid var(--line);
+    padding: 6px 13px; border-radius: 999px; font: inherit; font-size: 13px; cursor: pointer;
+  }
+  .chips button[aria-pressed="true"] { background: var(--accent-2); color: #06121f; border-color: var(--accent-2); font-weight: 600; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; }
+  .card h3 { margin: 0 0 2px; font-size: 15px; }
+  .card h3 a { color: var(--text); text-decoration: none; }
+  .card h3 a:hover { color: var(--accent-2); }
+  .card .meta { color: var(--dim); font-size: 12px; margin-bottom: 4px; }
+  .card .load { color: var(--good); font-size: 12px; font-weight: 600; margin-bottom: 9px; }
+  .card ul { margin: 0; padding-left: 17px; font-size: 13px; color: #cbd2dc; }
+  .card ul li { margin-bottom: 3px; }
+  .card .miss { margin: 9px 0 0; font-size: 12px; color: #ffb4a2; }
+  .card .yt { display: inline-block; margin-top: 9px; font-size: 12px; color: var(--accent-2); text-decoration: none; }
+  .card .yt:hover { text-decoration: underline; }
+
+  /* --- info panel --- */
+  .info { background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: var(--radius); padding: 14px 16px; margin: 16px 0; }
+  .info h3 { margin: 0 0 6px; font-size: 14px; }
+  .info p, .info li { font-size: 14px; color: #cbd2dc; }
+  .info p { margin: 0 0 8px; }
+  .info ul { margin: 0; padding-left: 18px; }
+  .info li { margin-bottom: 4px; }
+
+  /* --- cut calculator --- */
+  .calc { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; max-width: 520px; }
+  .calc .row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .calc label { flex: 0 0 130px; font-size: 14px; color: var(--dim); }
+  .calc input, .calc select {
+    flex: 1; background: var(--panel-2); color: var(--text); border: 1px solid var(--line);
+    border-radius: 8px; padding: 9px 11px; font: inherit; font-size: 15px;
+  }
+  .out { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px,1fr)); gap: 10px; margin: 18px 0 6px; }
+  .out .box { background: var(--panel-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 14px; }
+  .out .box .k { font-size: 12px; color: var(--dim); }
+  .out .box .v { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .out .box.hl { border-color: var(--accent); }
+  .out .box.hl .v { color: var(--accent); }
+  .out .box.pro .v { color: var(--good); }
+  .disc { color: var(--dim); font-size: 12px; margin-top: 10px; }
+
+  /* --- timer --- */
+  #dock {
+    position: fixed; left: 0; right: 0; bottom: 0; background: var(--panel);
+    border-top: 1px solid var(--line); padding: 10px 16px;
+    display: flex; align-items: center; gap: 12px; justify-content: center;
+  }
+  #dock[hidden] { display: none; }
+  #clock { font-size: 30px; font-variant-numeric: tabular-nums; font-weight: 600; letter-spacing: 1px; }
+  #clock.ring { color: var(--good); }
+  #dock .lbl { color: var(--dim); font-size: 13px; margin-right: auto; }
+  #dock button {
+    background: var(--panel-2); color: var(--text); border: 1px solid var(--line);
+    border-radius: 8px; padding: 7px 14px; font: inherit; font-size: 14px; cursor: pointer;
+  }
+  #dock button:hover { border-color: var(--accent-2); }
+
+  .presets { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0 0; }
+  .presets button {
+    background: var(--panel-2); color: var(--text); border: 1px solid var(--line);
+    border-radius: 8px; padding: 10px 18px; font: inherit; cursor: pointer;
+  }
+  .presets button:hover { border-color: var(--accent); color: var(--accent); }
+
+  @media (max-width: 520px) {
+    #dock .lbl { display: none; }
+    .brand h1 { font-size: 19px; }
+    .calc label { flex-basis: 96px; }
+  }
+
+  @media print {
+    :root { --bg:#fff; --panel:#fff; --panel-2:#fff; --line:#bbb; --text:#000; --dim:#555; }
+    nav, #dock, .chips, .rest-btn, .info, .card .yt { display: none !important; }
+    .day { break-inside: avoid; page-break-after: always; border: none; }
+    .day .daybody { display: block !important; }
+    table { min-width: 0; }
+    a { color: #000; text-decoration: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="brand">
+      <h1>Yutti's <span>Workout</span> Routine</h1>
+      <p>4-day push/pull · +optional full day · built from your gym</p>
+    </div>
+    <nav>
+      <button id="tab-program" aria-selected="true">Program</button>
+      <button id="tab-library" aria-selected="false">Library</button>
+      <button id="tab-timer"   aria-selected="false">Timer</button>
+      <button id="tab-cut"     aria-selected="false">Cut</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section id="view-program">
+    <h2>Your split</h2>
+    <p class="sub">Mon Push A · Tue Pull A · Thu Push B · Fri Pull B — each muscle twice a week. Side delts on <b>both push days</b> for width; traps, rear delts and arms on the pull days. Each day ends with a light antagonist pump — biceps on push days, triceps on pull days — so you look full for posing without cooking tomorrow's muscle.</p>
+
+    <div class="info">
+      <h3>How to grow while cutting</h3>
+      <ul>
+        <li><b>Progressive overload.</b> The weights below are your current loads. Every week, add reps or a small jump (2.5&nbsp;kg upper body) on presses and rows. Growth comes from the bar getting heavier over time — not the pump.</li>
+        <li><b>Eat in a deficit</b> (see the <b>Cut</b> tab) but keep protein high — that's what keeps the muscle on while the fat comes off. Cutting reveals the size; it doesn't build it, so keep lifting heavy.</li>
+        <li><b>Last set of isolations</b> (raises, curls, pushdowns) — take it to the point you can't do another clean rep.</li>
+      </ul>
+    </div>
+
+    <div id="days"></div>
+  </section>
+
+  <section id="view-library" hidden>
+    <h2>Exercise library</h2>
+    <p class="sub">Every move in your routine — form cues, the mistake that kills it, and your current working weight. Names link to a video search.</p>
+    <div class="chips" id="chips"></div>
+    <div class="grid" id="lib"></div>
+  </section>
+
+  <section id="view-timer" hidden>
+    <h2>Rest timer</h2>
+    <p class="sub">Runs in the dock at the bottom — keeps counting while you browse other tabs. At zero it plays a loud alarm and vibrates your phone. Settings save on this device. On mobile keep this tab open (screen-awake helps) — background tabs slow the countdown.</p>
+
+    <div class="calc" style="margin-bottom:16px">
+      <div class="row"><label for="t-vol">Volume</label>
+        <input id="t-vol" type="range" min="0" max="100" value="80"></div>
+      <div class="row"><label for="t-snd">Alarm sound</label>
+        <select id="t-snd"></select></div>
+      <div class="row"><label for="t-vib">Vibrate phone</label>
+        <input id="t-vib" type="checkbox" checked style="flex:0 0 auto"></div>
+      <div class="row"><label for="t-wake">Keep screen awake</label>
+        <input id="t-wake" type="checkbox" checked style="flex:0 0 auto"></div>
+      <div class="row"><label>&nbsp;</label>
+        <button id="t-test" class="rest-btn" style="flex:0 0 auto;padding:8px 16px;font-size:14px">▶ Test alarm</button></div>
+      <p class="disc">Pick a preset alarm, or "Built-in beep". Add more by dropping an .mp3 into <code>/sounds</code> and adding a line to the <code>SOUNDS</code> list.</p>
+    </div>
+
+    <div class="presets" id="presets"></div>
+  </section>
+
+  <section id="view-cut" hidden>
+    <h2>Cutting calculator</h2>
+    <p class="sub">Estimates the calories and protein to lose fat while holding onto muscle. Uses the Mifflin-St Jeor formula. Your numbers save on this device.</p>
+    <div class="calc">
+      <div class="row"><label for="c-sex">Sex</label>
+        <select id="c-sex"><option value="m">Male</option><option value="f">Female</option></select></div>
+      <div class="row"><label for="c-age">Age</label><input id="c-age" type="number" inputmode="numeric" value="25"></div>
+      <div class="row"><label for="c-wt">Weight (kg)</label><input id="c-wt" type="number" inputmode="decimal" value="75"></div>
+      <div class="row"><label for="c-ht">Height (cm)</label><input id="c-ht" type="number" inputmode="numeric" value="178"></div>
+      <div class="row"><label for="c-act">Activity</label>
+        <select id="c-act">
+          <option value="1.2">Sedentary (desk, no training)</option>
+          <option value="1.375">Light (1–3 sessions/wk)</option>
+          <option value="1.55" selected>Moderate (4–5 sessions/wk)</option>
+          <option value="1.725">Very active (6–7 + active job)</option>
+        </select></div>
+
+      <div class="out">
+        <div class="box"><div class="k">Maintenance</div><div class="v"><span id="o-tdee">—</span></div><div class="k">kcal / day</div></div>
+        <div class="box hl"><div class="k">Cut target (−20%)</div><div class="v"><span id="o-cut">—</span></div><div class="k">kcal / day</div></div>
+        <div class="box pro"><div class="k">Protein</div><div class="v"><span id="o-pro">—</span></div><div class="k">g / day</div></div>
+        <div class="box"><div class="k">Est. fat loss</div><div class="v"><span id="o-loss">—</span></div><div class="k">kg / week</div></div>
+      </div>
+      <p class="disc" id="o-bmr"></p>
+      <p class="disc">Estimate only, not medical or dietary advice. Track your weight for 2 weeks and adjust: losing faster than ~1% of bodyweight per week means eat a bit more; not moving means eat a bit less.</p>
+    </div>
+  </section>
+
+</main>
+
+<div id="dock" hidden>
+  <span class="lbl" id="dock-lbl">Rest</span>
+  <span id="clock">0:00</span>
+  <button id="t-add">+30s</button>
+  <button id="t-stop">Stop</button>
+</div>
+
+<script>
+"use strict";
+
+const yt = q => "https://www.youtube.com/results?search_query=" + encodeURIComponent(q + " form");
+
+/* ---------------------------------------------------------------
+   DATA — every entry maps to the user's actual gym kit.
+   `log` = their current working weight / machine settings.
+--------------------------------------------------------------- */
+const EXERCISES = [
+  // ---------- CHEST ----------
+  { id:"chest-press", name:"Barbell / Machine Chest Press", muscle:"chest", equip:"Barbell / Machine", log:"30 kg (15+15) × 12",
+    cues:["Shoulder blades pinned down and back the whole set.",
+          "Lower to the mid-chest, drive up without fully locking out — keep tension on the pecs.",
+          "Control the weight down ~2 seconds; the stretch is where the growth is."],
+    miss:"Bouncing the bar off the chest and losing that bottom stretch." },
+  { id:"incline-press", name:"Incline Press (machine)", muscle:"chest", equip:"Machine", log:"20 kg (10+10) · seat 8 / height 4",
+    cues:["Your settings: seat 8, height 4 — same every time so the numbers compare.",
+          "Hits the upper chest, which fills out the top of the pecs.",
+          "Full stretch at the bottom, squeeze at the top."],
+    miss:"Half reps. The bottom third builds the chest." },
+  { id:"pec-deck", name:"Pec Deck Fly (chest)", muscle:"chest", equip:"Machine", log:"36 kg × 12",
+    cues:["Sit facing INTO the machine, chest on the pad — this is the chest-fly direction.",
+          "Same machine as the Reverse Pec Deck: turn around to face the pad and it becomes the rear-delt move.",
+          "Seat height so the handles sit at mid-chest for flyes.",
+          "Squeeze for a beat where the tension peaks."],
+    miss:"Cutting the range short — let the arms travel back for a real stretch before closing." },
+
+  // ---------- BACK ----------
+  { id:"lat-pulldown", name:"Lat Pulldown", muscle:"back", equip:"Cable", log:"32 kg × 12",
+    cues:["Think elbows down into your back pockets, not hands down.",
+          "Full stretch at the top: let the shoulder blades rise.",
+          "Lean back ~15° and hold that angle — don't rock."],
+    miss:"Pulling behind the neck. No extra lat, plenty of shoulder risk." },
+  { id:"machine-row", name:"Machine Row", muscle:"back", equip:"Machine", log:"36 kg × 12",
+    cues:["Chest against the pad, pull with the elbows.",
+          "Full stretch forward, squeeze the back at the end."],
+    miss:"Peeling off the pad and using the whole body to move the stack." },
+  { id:"high-row", name:"High Row", muscle:"back", equip:"Machine", log:"30 kg (15+15) × 12",
+    cues:["Higher pull angle biases the upper back and rear delts.",
+          "Let the shoulders stretch forward at the front of each rep.",
+          "Drive the elbows down and back."],
+    miss:"Shrugging the weight up instead of rowing it." },
+  { id:"bent-row-rdl", name:"Bent-Over Row / RDL", muscle:"back", equip:"Barbell / Dumbbell", log:"start light",
+    cues:["The hinge your machines miss — bend at the hips, spine neutral, soft knees.",
+          "RDL: push the hips back, feel the hamstrings, bar close to the legs.",
+          "Row: pull to the lower ribs from that hinged position.",
+          "Start light and nail the hinge before loading — this is a new pattern for you."],
+    miss:"Rounding the lower back. If the spine bends, drop the weight." },
+
+  // ---------- SIDE / FRONT DELT ----------
+  { id:"machine-lateral", name:"Machine Deltoid (Lateral) Raise", muscle:"side-delt", equip:"Machine", log:"27 kg × 12",
+    cues:["Pads on the upper arm, not the forearm.",
+          "Safest place to push to failure and run a drop set on the last set.",
+          "Pause a beat at the top of each rep."],
+    miss:"Half reps at the top instead of just lowering the weight when you hit failure." },
+  { id:"db-side-raise", name:"DB Side Raise", muscle:"side-delt", equip:"Dumbbell", log:"8 kg × 12",
+    cues:["Lead with the elbow, hand trailing slightly behind.",
+          "Stop at shoulder height — higher hands work to the traps.",
+          "Slight forward lean puts more tension on the side head — this is the width muscle."],
+    miss:"Swinging from the hips. If you can't stop it at the top, it's too heavy." },
+  { id:"db-front-raise", name:"DB Front Raise (front delt)", muscle:"side-delt", equip:"Dumbbell", log:"8 kg × 12",
+    cues:["Raise to shoulder height, no higher.",
+          "Front delts already get hit by pressing — keep this light, it's a finisher.",
+          "One arm at a time keeps it strict."],
+    miss:"Using momentum to swing the weight up past the shoulders." },
+  { id:"machine-ohp", name:"Shoulder Overhead Press (machine)", muscle:"side-delt", equip:"Machine", log:"20 kg (10+10) · seat 8 / height 4",
+    cues:["Your settings: seat 8, height 4.",
+          "Press until the arms are nearly straight, don't slam the lockout.",
+          "The heavy shoulder press that grows overall delt size — go up in weight over time."],
+    miss:"Stopping way short of the top and only doing a partial press." },
+
+  // ---------- REAR DELT ----------
+  { id:"reverse-pec-deck", name:"Reverse Pec Deck (rear delt)", muscle:"rear-delt", equip:"Machine", log:"23 kg × 12",
+    cues:["Same machine as the Pec Deck Fly — just face the pad and set the handles for the reverse (rear-delt) motion.",
+          "Chest flat on the pad, pull the handles out and back with your elbows.",
+          "Fixed path means you can't really cheat it — that's why it beats the face pull for you.",
+          "High reps: 15–20, squeeze at the back."],
+    miss:"Squeezing the shoulder blades together instead of leading with the elbows — that turns it into a mid-back move." },
+
+  // ---------- TRAPS ----------
+  { id:"shrug", name:"Shrugs", muscle:"traps", equip:"Dumbbell / Barbell", log:"24 kg (12+12) × 12",
+    cues:["Straight up and down — no rolling the shoulders.",
+          "Pause 1 second at the top, every rep.",
+          "Traps are what make you look yoked from the front — go heavier over time."],
+    miss:"Bouncing a heavy weight an inch. Cut the load, get the full shrug and the pause." },
+
+  // ---------- ARMS ----------
+  { id:"cable-curl", name:"Incline Barbell Curl", muscle:"biceps", equip:"Barbell + incline bench", log:"20 kg (10+10) × 12",
+    cues:["Sit upright, arm resting on the incline pad, barbell hanging at ~45°.",
+          "Curl from that stretched 45° position up — the pad stops you cheating with the shoulders.",
+          "Keep the upper arm on the pad the whole set; squeeze at the top, control the way down."],
+    miss:"Lifting the elbow off the pad and swinging, which throws away the stretch that makes this curl work." },
+  { id:"pushdown", name:"Tricep Pushdown (straight bar)", muscle:"triceps", equip:"Straight bar", log:"20 kg × 12",
+    cues:["Straight/flat bar, not a rope.",
+          "Elbows locked at the ribs the whole set — only the forearms move.",
+          "Push all the way to a straight arm and squeeze; triceps are two-thirds of the arm."],
+    miss:"Leaning over the bar so bodyweight does the pushing instead of the triceps." },
+
+  // ---------- ABS ----------
+  { id:"ab-crunch", name:"Ab Crunch (machine)", muscle:"abs", equip:"Machine", log:"23 kg × 12 · optional",
+    cues:["Curl the ribcage toward the hips — it's a crunch, not a hip fold.",
+          "Slow and controlled, squeeze at the bottom.",
+          "Abs show up in the kitchen; this thickens them so they pop once you're lean."],
+    miss:"Yanking with the arms and hip flexors instead of crunching the abs." }
+];
+
+/* ---------------------------------------------------------------
+   PROGRAM
+--------------------------------------------------------------- */
+const DAYS = [
+  { name:"Push A", day:"Monday", why:"Chest focus + side delts. Heavy pressing first, raises while fresh.",
+    work:[
+      { id:"chest-press",    sets:4, reps:"8–12", rest:150 },
+      { id:"incline-press",  sets:3, reps:"8–12", rest:120 },
+      { id:"pec-deck",       sets:3, reps:"12–15", rest:90, note:"Chest fly grip (face in)." },
+      { id:"machine-lateral",sets:4, reps:"12–15", rest:60, key:true },
+      { id:"db-side-raise",  sets:3, reps:"12–15", rest:60, key:true },
+      { id:"pushdown",       sets:3, reps:"12–15", rest:60, note:"Last set to failure." },
+      { id:"cable-curl",     sets:2, reps:"15–20", rest:45, note:"Biceps pump only — light, NOT to failure." }
+  ]},
+  { name:"Pull A", day:"Tuesday", why:"Back width + traps + biceps. Vertical pull first, then traps and rear delts.",
+    work:[
+      { id:"lat-pulldown", sets:4, reps:"8–12", rest:120 },
+      { id:"machine-row",  sets:4, reps:"8–12", rest:120 },
+      { id:"high-row",     sets:3, reps:"10–12", rest:90 },
+      { id:"reverse-pec-deck", sets:3, reps:"15–20", rest:60 },
+      { id:"shrug",        sets:4, reps:"10–12", rest:60 },
+      { id:"cable-curl",   sets:3, reps:"10–12", rest:60, note:"Last set to failure." },
+      { id:"pushdown",     sets:2, reps:"15–20", rest:45, note:"Triceps pump only — light, NOT to failure." }
+  ]},
+  { name:"Push B", day:"Thursday", why:"Shoulder focus. Press heavy, machine lateral gets a drop set — this is the width day.",
+    work:[
+      { id:"machine-ohp",    sets:4, reps:"6–10", rest:150 },
+      { id:"machine-lateral",sets:4, reps:"10–12", rest:90, key:true, note:"Drop set on the last set." },
+      { id:"db-front-raise", sets:3, reps:"12–15", rest:60 },
+      { id:"chest-press",    sets:3, reps:"8–12", rest:120 },
+      { id:"incline-press",  sets:3, reps:"10–12", rest:90 },
+      { id:"pushdown",       sets:3, reps:"12–15", rest:60, note:"Last set to failure." },
+      { id:"cable-curl",     sets:2, reps:"15–20", rest:45, note:"Biceps pump only — light, NOT to failure." }
+  ]},
+  { name:"Pull B", day:"Friday", why:"Back thickness + traps + biceps. The hinge pattern your machines miss.",
+    work:[
+      { id:"bent-row-rdl", sets:4, reps:"8–10", rest:150, note:"Alternate row and RDL week to week. Start light." },
+      { id:"lat-pulldown", sets:3, reps:"10–12", rest:120 },
+      { id:"high-row",     sets:3, reps:"10–12", rest:90 },
+      { id:"reverse-pec-deck", sets:3, reps:"15–20", rest:60 },
+      { id:"shrug",        sets:4, reps:"10–12", rest:60 },
+      { id:"cable-curl",   sets:3, reps:"10–12", rest:60, note:"Last set to failure." },
+      { id:"pushdown",     sets:2, reps:"15–20", rest:45, note:"Triceps pump only — light, NOT to failure." }
+  ]}
+];
+
+const MUSCLES = {
+  "chest":"Chest", "back":"Back", "side-delt":"Delts",
+  "rear-delt":"Rear Delt", "traps":"Traps", "biceps":"Biceps",
+  "triceps":"Triceps", "abs":"Abs"
+};
+
+const byId = Object.fromEntries(EXERCISES.map(e => [e.id, e]));
+const $ = s => document.querySelector(s);
+const fmtRest = s => s >= 60 ? (s % 60 ? (s/60).toFixed(1) + " min" : (s/60) + " min") : s + "s";
+
+/* ---------------------------------------------------------------
+   RENDER: program
+--------------------------------------------------------------- */
+function renderProgram() {
+  $("#days").innerHTML = DAYS.map((d, di) => {
+    const tally = {};
+    d.work.forEach(w => { const m = byId[w.id].muscle; tally[m] = (tally[m] || 0) + w.sets; });
+    const chips = Object.entries(tally).map(([m, n]) => `<span>${MUSCLES[m]} ${n}</span>`).join("");
+
+    const rows = d.work.map((w, wi) => {
+      const e = byId[w.id];
+      const load = e.log ? e.log.split(" · ") : ["—"];
+      return `<tr data-muscle="${e.muscle}" data-key="${di}:${wi}" class="${w.key ? "key" : ""}">
+        <td><input type="checkbox" aria-label="Mark ${e.name} done"></td>
+        <td class="ex">
+          <a href="${yt(e.name)}" target="_blank" rel="noopener">${e.name}</a>
+          ${w.note ? `<span class="note">${w.note}</span>` : ""}
+        </td>
+        <td class="load">${load[0]}${load[1] ? `<small>${load[1]}</small>` : ""}</td>
+        <td class="pre">${w.sets} × ${w.reps}</td>
+        <td class="pre"><button class="rest-btn" data-rest="${w.rest}">▶ ${fmtRest(w.rest)}</button></td>
+      </tr>`;
+    }).join("");
+
+    return `<details class="day ${d.optional ? "optional" : ""}" ${di === 0 ? "open" : ""}>
+      <summary>
+        <b>${d.name}</b> <span class="tag">${d.day}</span>
+        <span class="why">${d.why}</span>
+      </summary>
+      <div class="daybody">
+        <div class="vol">${chips}</div>
+        <div class="tablewrap"><table>
+          <thead><tr><th></th><th>Exercise</th><th>Weight</th><th>Sets × Reps</th><th>Rest</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table></div>
+      </div>
+    </details>`;
+  }).join("");
+
+  restoreChecks();
+}
+
+/* ---------------------------------------------------------------
+   RENDER: library
+--------------------------------------------------------------- */
+let filter = "all";
+
+function renderLibrary() {
+  const used = [...new Set(EXERCISES.map(e => e.muscle))];
+  $("#chips").innerHTML =
+    `<button data-m="all" aria-pressed="${filter === "all"}">All</button>` +
+    used.map(k => {
+      const n = EXERCISES.filter(e => e.muscle === k).length;
+      return `<button data-m="${k}" aria-pressed="${filter === k}">${MUSCLES[k]} <span style="opacity:.6">${n}</span></button>`;
+    }).join("");
+
+  $("#lib").innerHTML = EXERCISES
+    .filter(e => filter === "all" || e.muscle === filter)
+    .map(e => `<div class="card">
+      <h3><a href="${yt(e.name)}" target="_blank" rel="noopener">${e.name}</a></h3>
+      <div class="meta">${MUSCLES[e.muscle]} · ${e.equip}</div>
+      ${e.log ? `<div class="load">Current: ${e.log}</div>` : ""}
+      <ul>${e.cues.map(c => `<li>${c}</li>`).join("")}</ul>
+      <p class="miss"><b>Common mistake:</b> ${e.miss}</p>
+      <a class="yt" href="${yt(e.name)}" target="_blank" rel="noopener">▶ Watch demo</a>
+    </div>`).join("");
+
+  document.querySelectorAll("#days tbody tr").forEach(tr => {
+    tr.classList.toggle("dim", filter !== "all" && tr.dataset.muscle !== filter);
+  });
+}
+
+$("#chips").addEventListener("click", ev => {
+  const b = ev.target.closest("button");
+  if (!b) return;
+  filter = b.dataset.m;
+  renderLibrary();
+});
+
+/* ---------------------------------------------------------------
+   Tabs
+--------------------------------------------------------------- */
+const TABS = ["program", "library", "timer", "cut"];
+function showTab(name) {
+  TABS.forEach(t => {
+    $("#view-" + t).hidden = t !== name;
+    $("#tab-" + t).setAttribute("aria-selected", String(t === name));
+  });
+}
+TABS.forEach(t => $("#tab-" + t).addEventListener("click", () => showTab(t)));
+
+/* ---------------------------------------------------------------
+   Checkboxes — persisted per day, auto-cleared on a new date.
+--------------------------------------------------------------- */
+const today = () => new Date().toISOString().slice(0, 10);
+const STORE = "vtaper-done";
+
+function loadChecks() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(STORE) || "{}");
+    return raw.date === today() ? raw : { date: today(), ids: [] };
+  } catch { return { date: today(), ids: [] }; }
+}
+
+function restoreChecks() {
+  const { ids } = loadChecks();
+  ids.forEach(k => {
+    const tr = document.querySelector(`tr[data-key="${k}"]`);
+    if (tr) { tr.querySelector("input").checked = true; tr.classList.add("done"); }
+  });
+}
+
+document.addEventListener("change", ev => {
+  const box = ev.target;
+  if (box.type !== "checkbox") return;
+  const tr = box.closest("tr");
+  if (!tr || !tr.dataset.key) return;
+  tr.classList.toggle("done", box.checked);
+  const state = loadChecks();
+  const set = new Set(state.ids);
+  box.checked ? set.add(tr.dataset.key) : set.delete(tr.dataset.key);
+  localStorage.setItem(STORE, JSON.stringify({ date: today(), ids: [...set] }));
+});
+
+/* ---------------------------------------------------------------
+   Rest timer
+--------------------------------------------------------------- */
+let endAt = 0, tick = null;
+
+/* Shared AudioContext — created/resumed on a user gesture so iOS lets it play. */
+let audioCtx = null;
+function ensureAudio() {
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === "suspended") audioCtx.resume();
+  } catch { audioCtx = null; }
+  return audioCtx;
+}
+
+const TIMER_STORE = "vtaper-timer";
+const timerInputs = ["t-vol", "t-snd", "t-vib", "t-wake"];
+
+/* Alarm presets. f = "" means the built-in beep. Add an .mp3 to /sounds and a line here. */
+const SOUNDS = [
+  { n: "Built-in beep", f: "" },
+  { n: "Default", f: "sounds/default.mp3" },
+  { n: "Alarm",   f: "sounds/alarm.mp3" },
+  { n: "Buzzer",  f: "sounds/buzzer.mp3" },
+  { n: "Chime",   f: "sounds/chime.mp3" },
+  { n: "Funny",   f: "sounds/funny.mp3" }
+];
+function timerCfg() {
+  return {
+    vol:  (+$("#t-vol").value || 0) / 100,
+    snd:  $("#t-snd").value.trim(),
+    vib:  $("#t-vib").checked,
+    wake: $("#t-wake").checked
+  };
+}
+
+/* Loud 3-beep pattern at attention pitch (fallback when no custom sound). */
+function beeps(vol) {
+  const ctx = ensureAudio();
+  if (!ctx) return;
+  const now = ctx.currentTime;
+  for (let i = 0; i < 3; i++) {
+    const osc = ctx.createOscillator(), gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.frequency.value = 1000;
+    const t = now + i * 0.28;
+    gain.gain.setValueAtTime(vol * 0.9, t);
+    osc.start(t); osc.stop(t + 0.18);
+  }
+}
+
+function playAlarm() {
+  const { vol, snd, vib } = timerCfg();
+  if (snd) {
+    try {
+      const a = new Audio(snd);
+      a.volume = Math.min(1, Math.max(0, vol));
+      a.play().catch(() => beeps(vol));   // file missing/blocked → fall back to beep
+    } catch { beeps(vol); }
+  } else {
+    beeps(vol);
+  }
+  if (vib && navigator.vibrate) { try { navigator.vibrate([300, 150, 300, 150, 300]); } catch {} }
+}
+
+/* Keep the phone screen awake while resting so the countdown keeps firing. */
+let wakeLock = null;
+async function requestWakeLock() {
+  try { if (navigator.wakeLock) wakeLock = await navigator.wakeLock.request("screen"); } catch {}
+}
+function releaseWakeLock() {
+  try { wakeLock && wakeLock.release(); } catch {}
+  wakeLock = null;
+}
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible" && tick && timerCfg().wake) requestWakeLock();
+});
+
+function paint() {
+  const left = Math.max(0, Math.round((endAt - Date.now()) / 1000));
+  $("#clock").textContent = Math.floor(left / 60) + ":" + String(left % 60).padStart(2, "0");
+  if (left === 0) {
+    clearInterval(tick); tick = null;
+    $("#clock").classList.add("ring");
+    $("#dock-lbl").textContent = "Go";
+    playAlarm();
+    releaseWakeLock();
+    setTimeout(stopTimer, 5000);
+  }
+}
+
+function startTimer(sec) {
+  ensureAudio();
+  endAt = Date.now() + sec * 1000;
+  $("#dock").hidden = false;
+  $("#clock").classList.remove("ring");
+  $("#dock-lbl").textContent = "Rest";
+  clearInterval(tick);
+  paint();
+  tick = setInterval(paint, 250);
+  if (timerCfg().wake) requestWakeLock();
+}
+
+function stopTimer() {
+  clearInterval(tick); tick = null;
+  $("#dock").hidden = true;
+  $("#clock").classList.remove("ring");
+  releaseWakeLock();
+}
+
+document.addEventListener("click", ev => {
+  const b = ev.target.closest(".rest-btn");
+  if (b && b.dataset.rest) { ev.preventDefault(); startTimer(+b.dataset.rest); }
+});
+$("#t-stop").addEventListener("click", stopTimer);
+$("#t-add").addEventListener("click", () => {
+  if (!tick) startTimer(30);
+  else { endAt += 30000; $("#clock").classList.remove("ring"); paint(); }
+});
+
+$("#presets").innerHTML = [5, 30, 45, 60, 90, 120, 150, 180]
+  .map(s => `<button class="rest-btn" data-rest="${s}" style="padding:10px 18px;font-size:15px">▶ ${fmtRest(s)}</button>`).join("");
+
+/* Timer settings — persisted per device; Test previews the current alarm. */
+(function initTimer() {
+  $("#t-snd").innerHTML = SOUNDS.map(s => `<option value="${s.f}">${s.n}</option>`).join("");
+  try {
+    const saved = JSON.parse(localStorage.getItem(TIMER_STORE) || "{}");
+    timerInputs.forEach(id => {
+      if (saved[id] == null) return;
+      const el = $("#" + id);
+      if (el.type === "checkbox") el.checked = saved[id]; else el.value = saved[id];
+    });
+  } catch {}
+  const save = () => localStorage.setItem(TIMER_STORE, JSON.stringify(
+    timerInputs.reduce((o, id) => {
+      const el = $("#" + id);
+      o[id] = el.type === "checkbox" ? el.checked : el.value;
+      return o;
+    }, {})));
+  timerInputs.forEach(id => {
+    const el = $("#" + id);
+    el.addEventListener("input", save);
+    el.addEventListener("change", save);
+  });
+  $("#t-test").addEventListener("click", () => { ensureAudio(); playAlarm(); });
+})();
+
+/* ---------------------------------------------------------------
+   Cut calculator — Mifflin-St Jeor
+--------------------------------------------------------------- */
+function computeCut({ sex, age, kg, cm, act }) {
+  const bmr = 10 * kg + 6.25 * cm - 5 * age + (sex === "m" ? 5 : -161);
+  const tdee = bmr * act;
+  const cut = tdee * 0.8;
+  return {
+    bmr: Math.round(bmr),
+    tdee: Math.round(tdee),
+    cut: Math.round(cut),
+    proteinLo: Math.round(1.6 * kg),
+    proteinHi: Math.round(2.2 * kg),
+    lossKg: +((tdee - cut) * 7 / 7700).toFixed(2)   // 7700 kcal ≈ 1 kg fat
+  };
+}
+
+const CUT_STORE = "vtaper-cut";
+const cutInputs = ["c-sex", "c-age", "c-wt", "c-ht", "c-act"];
+
+function renderCut() {
+  const kg = +$("#c-wt").value, cm = +$("#c-ht").value, age = +$("#c-age").value;
+  const dash = !(kg > 0 && cm > 0 && age > 0);
+  if (dash) {
+    ["o-tdee","o-cut","o-pro","o-loss"].forEach(id => $("#"+id).textContent = "—");
+    $("#o-bmr").textContent = "";
+    return;
+  }
+  const r = computeCut({ sex: $("#c-sex").value, age, kg, cm, act: +$("#c-act").value });
+  $("#o-tdee").textContent = r.tdee.toLocaleString();
+  $("#o-cut").textContent  = r.cut.toLocaleString();
+  $("#o-pro").textContent  = r.proteinLo + "–" + r.proteinHi;
+  $("#o-loss").textContent = r.lossKg;
+  $("#o-bmr").textContent  = "Resting burn (BMR): " + r.bmr.toLocaleString() + " kcal/day. Cut target is 20% under maintenance — a steady, muscle-sparing deficit.";
+  localStorage.setItem(CUT_STORE, JSON.stringify(cutInputs.reduce((o, id) => (o[id] = $("#"+id).value, o), {})));
+}
+
+(function initCut() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(CUT_STORE) || "{}");
+    cutInputs.forEach(id => { if (saved[id] != null) $("#"+id).value = saved[id]; });
+  } catch {}
+  cutInputs.forEach(id => $("#"+id).addEventListener("input", renderCut));
+  renderCut();
+})();
+
+/* ---------------------------------------------------------------
+   Boot + self-check (console only)
+--------------------------------------------------------------- */
+renderProgram();
+renderLibrary();
+
+(function selfCheck() {
+  const errs = [];
+  DAYS.forEach(d => d.work.forEach(w => {
+    if (!byId[w.id]) errs.push(`${d.name}: unknown exercise id "${w.id}"`);
+  }));
+  EXERCISES.forEach(e => {
+    if (!MUSCLES[e.muscle]) errs.push(`${e.id}: unknown muscle "${e.muscle}"`);
+    if (!e.cues || e.cues.length < 2) errs.push(`${e.id}: needs at least 2 cues`);
+    if (!e.miss) errs.push(`${e.id}: missing "miss"`);
+  });
+  const ids = EXERCISES.map(e => e.id);
+  if (new Set(ids).size !== ids.length) errs.push("duplicate exercise ids");
+  // side-delt must land on both push days (the width premise)
+  ["Push A", "Push B"].forEach(n => {
+    const d = DAYS.find(x => x.name === n);
+    if (!d.work.some(w => byId[w.id].muscle === "side-delt")) errs.push(`${n}: no side-delt work`);
+  });
+  // calculator sanity: 80kg/180cm/30/male => BMR 1780
+  const c = computeCut({ sex:"m", age:30, kg:80, cm:180, act:1.55 });
+  if (c.bmr !== 1780) errs.push(`computeCut BMR expected 1780, got ${c.bmr}`);
+
+  if (errs.length) console.error("V-TAPER data errors:\n" + errs.join("\n"));
+  else console.log(`V-TAPER ok — ${EXERCISES.length} exercises, ${DAYS.length} days, cut calc verified.`);
+})();
+</script>
+</body>
+</html>
