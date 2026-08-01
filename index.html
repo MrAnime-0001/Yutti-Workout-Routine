@@ -28,6 +28,9 @@
     -webkit-text-size-adjust: 100%;
   }
   .wrap { max-width: 960px; margin: 0 auto; padding: 0 16px 120px; }
+  /* .wrap is shared by header + main; the tall bottom padding is only for the
+     scrolling content column, not the sticky header (it inflated header height). */
+  header .wrap { padding-bottom: 0; }
 
   /* --- header --- */
   header {
