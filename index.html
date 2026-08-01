@@ -201,6 +201,9 @@
   /* --- mobile: nav becomes a bottom tab bar --- */
   @media (max-width: 640px) {
     .wrap { padding-bottom: calc(var(--nav-h) + 40px); }
+    /* backdrop-filter on header would make it the containing block for the
+       fixed nav below (bottom:0 anchors to header, not the viewport). Drop it. */
+    header { backdrop-filter: none; background: #0b0d10; }
     .brand { padding: 14px 0; }
     .brand h1 { letter-spacing: -.8px; }
     header nav {
@@ -215,7 +218,10 @@
     nav button .ico { font-size: 20px; }
     nav button[aria-selected="true"] { background: none; color: var(--accent); font-weight: 700; box-shadow: inset 0 3px 0 -1px var(--accent); }
     nav button[aria-selected="true"] .lab { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
-    #dock { bottom: var(--nav-h); padding-bottom: calc(10px + env(safe-area-inset-bottom, 0)); }
+    /* label's margin-right:auto spreads the dock edge-to-edge and looks stretched;
+       drop it and center the ring + buttons as a tight group. */
+    #dock { bottom: var(--nav-h); padding-bottom: calc(10px + env(safe-area-inset-bottom, 0)); gap: 12px; }
+    #dock .lbl { display: none; }
     .chips { position: static; background: none; padding: 0; }
     .exrow { grid-template-columns: 24px 1fr; grid-template-areas: "chk ex" "meta meta"; row-gap: 10px; }
     .exrow .chk { grid-area: chk; }
