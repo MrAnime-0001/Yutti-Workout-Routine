@@ -205,8 +205,10 @@
   @media (max-width: 640px) {
     .wrap { padding-bottom: calc(var(--nav-h) + 40px); }
     /* backdrop-filter on header would make it the containing block for the
-       fixed nav below (bottom:0 anchors to header, not the viewport). Drop it. */
-    header { backdrop-filter: none; background: #0b0d10; }
+       fixed nav below (bottom:0 anchors to header, not the viewport). Drop it.
+       Non-sticky on mobile: a sticky top header fights the browser's collapsing
+       address bar (jumps/gaps on scroll). Bottom bar is the nav; let title scroll. */
+    header { position: static; backdrop-filter: none; background: #0b0d10; }
     .brand { padding: 14px 0; }
     .brand h1 { letter-spacing: -.8px; }
     header nav {
