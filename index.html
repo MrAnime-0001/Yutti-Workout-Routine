@@ -223,16 +223,19 @@
 
     <div class="calc" style="margin-bottom:16px">
       <div class="row"><label for="t-vol">Volume</label>
-        <input id="t-vol" type="range" min="0" max="100" value="80"></div>
+        <input id="t-vol" type="range" min="0" max="100" value="33"></div>
       <div class="row"><label for="t-snd">Alarm sound</label>
         <select id="t-snd"></select></div>
       <div class="row"><label for="t-vib">Vibrate phone</label>
         <input id="t-vib" type="checkbox" checked style="flex:0 0 auto"></div>
       <div class="row"><label for="t-wake">Keep screen awake</label>
         <input id="t-wake" type="checkbox" checked style="flex:0 0 auto"></div>
+      <div class="row"><label for="t-notif">Background alert</label>
+        <input id="t-notif" type="checkbox" style="flex:0 0 auto"></div>
       <div class="row"><label>&nbsp;</label>
         <button id="t-test" class="rest-btn" style="flex:0 0 auto;padding:8px 16px;font-size:14px">▶ Test alarm</button></div>
       <p class="disc">Pick a preset alarm, or "Built-in beep". Add more by dropping an .mp3 into <code>/sounds</code> and adding a line to the <code>SOUNDS</code> list.</p>
+      <p class="disc"><b>Background alert</b> fires a phone notification (with vibration) at zero so it reaches you even when you've switched to Spotify. Asks for notification permission when you turn it on; needs the https link. Still obeys Do Not Disturb.</p>
     </div>
 
     <div class="presets" id="presets"></div>
@@ -578,7 +581,7 @@ function ensureAudio() {
 }
 
 const TIMER_STORE = "vtaper-timer";
-const timerInputs = ["t-vol", "t-snd", "t-vib", "t-wake"];
+const timerInputs = ["t-vol", "t-snd", "t-vib", "t-wake", "t-notif"];
 
 /* Alarm presets. f = "" means the built-in beep. Add an .mp3 to /sounds and a line here. */
 const SOUNDS = [
@@ -594,8 +597,15 @@ function timerCfg() {
     vol:  (+$("#t-vol").value || 0) / 100,
     snd:  $("#t-snd").value.trim(),
     vib:  $("#t-vib").checked,
-    wake: $("#t-wake").checked
+    wake: $("#t-wake").checked,
+    notif: $("#t-notif").checked
   };
+}
+
+/* Service worker hosts the background notification (needs https — no-ops on file://). */
+let swReg = null;
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js").then(r => { swReg = r; }).catch(() => {});
 }
 
 /* Loud 3-beep pattern at attention pitch (fallback when no custom sound). */
@@ -614,7 +624,7 @@ function beeps(vol) {
 }
 
 function playAlarm() {
-  const { vol, snd, vib } = timerCfg();
+  const { vol, snd, vib, notif } = timerCfg();
   if (snd) {
     try {
       const a = new Audio(snd);
@@ -625,6 +635,20 @@ function playAlarm() {
     beeps(vol);
   }
   if (vib && navigator.vibrate) { try { navigator.vibrate([300, 150, 300, 150, 300]); } catch {} }
+  // System notification — the only thing that reaches you when Chrome is backgrounded.
+  // ponytail: timing still depends on the page being alive; heavy background (screen off
+  // for minutes) can delay it — that's the ceiling for a serverless web app.
+  if (notif && swReg && "Notification" in window && Notification.permission === "granted") {
+    try {
+      swReg.showNotification("Rest over 💪", {
+        body: "Next set — let's go.",
+        vibrate: [300, 150, 300, 150, 300],
+        tag: "vtaper-rest",
+        renotify: true,
+        silent: false
+      });
+    } catch {}
+  }
 }
 
 /* Keep the phone screen awake while resting so the countdown keeps firing. */
@@ -637,7 +661,10 @@ function releaseWakeLock() {
   wakeLock = null;
 }
 document.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "visible" && tick && timerCfg().wake) requestWakeLock();
+  if (document.visibilityState === "visible" && tick) {
+    if (timerCfg().wake) requestWakeLock();
+    paint();   // catch a deadline that passed while the tab was backgrounded
+  }
 });
 
 function paint() {
@@ -706,6 +733,15 @@ $("#presets").innerHTML = [5, 30, 45, 60, 90, 120, 150, 180]
     const el = $("#" + id);
     el.addEventListener("input", save);
     el.addEventListener("change", save);
+  });
+  $("#t-notif").addEventListener("change", async e => {
+    if (e.target.checked && "Notification" in window && Notification.permission !== "granted") {
+      const p = await Notification.requestPermission();
+      if (p !== "granted") {
+        e.target.checked = false; save();
+        alert("Notifications are blocked. Enable them for this site in your browser settings to get background alerts.");
+      }
+    }
   });
   $("#t-test").addEventListener("click", () => { ensureAudio(); playAlarm(); });
 })();
