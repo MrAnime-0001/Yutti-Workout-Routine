@@ -654,7 +654,7 @@ document.addEventListener("change", ev => {
 /* ---------------------------------------------------------------
    Rest timer
 --------------------------------------------------------------- */
-let endAt = 0, tick = null, totalSec = 0;
+let endAt = 0, tick = null, totalSec = 0, alarmAudio = null, lastAlarm = 0;
 
 /* Shared AudioContext — created/resumed on a user gesture so iOS lets it play. */
 let audioCtx = null;
@@ -710,13 +710,23 @@ function beeps(vol) {
 }
 
 function playAlarm() {
+  // Debounce: ignore a repeat trigger within 1s so a fast double-press won't stack.
+  const now = Date.now();
+  if (now - lastAlarm < 1000) return;
+  lastAlarm = now;
   const { vol, snd, vib, notif } = timerCfg();
   if (snd) {
-    try {
-      const a = new Audio(snd);
-      a.volume = Math.min(1, Math.max(0, vol));
-      a.play().catch(() => beeps(vol));   // file missing/blocked → fall back to beep
-    } catch { beeps(vol); }
+    // Reuse one element (no overlap) and beep only on a real load error — NOT on a
+    // benign play() promise rejection, which on a cold gesture fires while the mp3
+    // still plays and gave a double sound on Test.
+    if (!alarmAudio) {
+      alarmAudio = new Audio();
+      alarmAudio.addEventListener("error", () => beeps(timerCfg().vol));
+    }
+    if (!alarmAudio.src.endsWith(snd)) alarmAudio.src = snd;
+    alarmAudio.volume = Math.min(1, Math.max(0, vol));
+    alarmAudio.currentTime = 0;
+    alarmAudio.play().catch(() => {});
   } else {
     beeps(vol);
   }
