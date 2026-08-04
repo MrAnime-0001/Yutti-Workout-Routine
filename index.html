@@ -156,9 +156,11 @@
   .calc .row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
   .calc label { flex: 0 0 130px; font-size: 14px; color: var(--dim); }
   .calc input, .calc select {
-    flex: 1; background: var(--panel-2); color: var(--text); border: 1px solid var(--line);
+    flex: 1; min-width: 0; background: var(--panel-2); color: var(--text); border: 1px solid var(--line);
     border-radius: 9px; padding: 10px 12px; font: inherit; font-size: 15px;
   }
+  /* range thumb overhangs the track ends; inset it so the thumb never escapes the card. */
+  .calc input[type=range] { padding: 0; margin: 0 14px; background: none; border: none; }
   .calc input:focus, .calc select:focus { outline: none; border-color: var(--accent); }
   .out { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px,1fr)); gap: 10px; margin: 18px 0 6px; }
   .out .box { background: var(--panel-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; }
@@ -408,7 +410,7 @@ const EXERCISES = [
           "Let the shoulders stretch forward at the front of each rep.",
           "Drive the elbows down and back."],
     miss:"Shrugging the weight up instead of rowing it." },
-  { id:"bent-row-rdl", name:"Bent-Over Row / RDL", muscle:"back", equip:"Barbell / Dumbbell", log:"start light",
+  { id:"bent-row-rdl", name:"Bent-Over Row / RDL", muscle:"back", equip:"Barbell / Dumbbell", log:"28 kg (14+14) × 12",
     cues:["The hinge your machines miss — bend at the hips, spine neutral, soft knees.",
           "RDL: push the hips back, feel the hamstrings, bar close to the legs.",
           "Row: pull to the lower ribs from that hinged position.",
@@ -508,7 +510,7 @@ const DAYS = [
   ]},
   { name:"Pull B", day:"Friday", why:"Back thickness + traps + biceps. The hinge pattern your machines miss.",
     work:[
-      { id:"bent-row-rdl", sets:4, reps:"8–10", rest:150, note:"Alternate row and RDL week to week. Start light." },
+      { id:"bent-row-rdl", sets:4, reps:"8–10", rest:150 },
       { id:"lat-pulldown", sets:3, reps:"10–12", rest:120 },
       { id:"high-row",     sets:3, reps:"10–12", rest:90 },
       { id:"reverse-pec-deck", sets:3, reps:"15–20", rest:60 },
@@ -554,7 +556,7 @@ function renderProgram() {
       </div>`;
     }).join("");
 
-    return `<details class="day ${d.optional ? "optional" : ""}" ${di === 0 ? "open" : ""}>
+    return `<details class="day ${d.optional ? "optional" : ""}">
       <summary>
         <span class="day-name">${d.name}</span> <span class="tag">${d.day}</span>
         <span class="why">${d.why}</span>
