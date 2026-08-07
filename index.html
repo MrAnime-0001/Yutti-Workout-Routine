@@ -278,6 +278,7 @@
         <li><b>Progressive overload.</b> The weights below are your current loads. Every week, add reps or a small jump (2.5&nbsp;kg upper body) on presses and rows. Growth comes from the bar getting heavier over time — not the pump.</li>
         <li><b>Eat in a deficit</b> (see the <b>Cut</b> tab) but keep protein high — that's what keeps the muscle on while the fat comes off. Cutting reveals the size; it doesn't build it, so keep lifting heavy.</li>
         <li><b>Last set of isolations</b> (raises, curls, pushdowns) — take it to the point you can't do another clean rep.</li>
+        <li><b>Machine settings.</b> Next to the weight: <b>height</b> = your seat/chair height; <b>distance</b> = how far the seat or arms are set — the reach (e.g. how far the chest-press handles sit from you). Dial the same numbers every time so the loads compare week to week.</li>
       </ul>
     </div>
 
@@ -378,20 +379,25 @@ const yt = q => "https://www.youtube.com/results?search_query=" + encodeURICompo
 --------------------------------------------------------------- */
 const EXERCISES = [
   // ---------- CHEST ----------
-  { id:"chest-press", name:"Barbell / Machine Chest Press", muscle:"chest", equip:"Barbell / Machine", log:"30 kg (15+15) × 12",
+  { id:"chest-press", name:"Barbell Chest Press", muscle:"chest", equip:"Barbell", log:"30 kg (15+15) × 12",
     cues:["Shoulder blades pinned down and back the whole set.",
           "Lower to the mid-chest, drive up without fully locking out — keep tension on the pecs.",
           "Control the weight down ~2 seconds; the stretch is where the growth is."],
     miss:"Bouncing the bar off the chest and losing that bottom stretch." },
-  { id:"incline-press", name:"Incline Press (machine)", muscle:"chest", equip:"Machine", log:"20 kg (10+10) · seat 8 / height 4",
-    cues:["Your settings: seat 8, height 4 — same every time so the numbers compare.",
+  { id:"machine-chest-press", name:"Machine Chest Press", muscle:"chest", equip:"Machine", log:"32 kg × 12 · distance 3",
+    cues:["Your setting: distance 3. Chest up, shoulder blades pinned down and back.",
+          "Press the handles out without locking the elbows — keep tension on the pecs.",
+          "Control the way back for a full stretch before the next rep."],
+    miss:"Letting the shoulders roll forward at the top — keep the chest proud." },
+  { id:"incline-press", name:"Incline Press (machine)", muscle:"chest", equip:"Machine", log:"20 kg (10+10) × 12 · height 8 / distance 4",
+    cues:["Your settings: height 8, distance 4 — same every time so the numbers compare.",
           "Hits the upper chest, which fills out the top of the pecs.",
           "Full stretch at the bottom, squeeze at the top."],
     miss:"Half reps. The bottom third builds the chest." },
-  { id:"pec-deck", name:"Pec Deck Fly (chest)", muscle:"chest", equip:"Machine", log:"36 kg × 12",
+  { id:"pec-deck", name:"Pec Deck Fly (chest)", muscle:"chest", equip:"Machine", log:"36 kg × 12 · height 4 / distance 5",
     cues:["Sit facing INTO the machine, chest on the pad — this is the chest-fly direction.",
           "Same machine as the Reverse Pec Deck: turn around to face the pad and it becomes the rear-delt move.",
-          "Seat height so the handles sit at mid-chest for flyes.",
+          "Your settings: height 4, distance 5 — handles sit at mid-chest for flyes.",
           "Squeeze for a beat where the tension peaks."],
     miss:"Cutting the range short — let the arms travel back for a real stretch before closing." },
   { id:"cable-chest-fly", name:"Cable Chest Fly", muscle:"chest", equip:"Cable", log:"7.5 kg × 12 · height 12",
@@ -419,12 +425,12 @@ const EXERCISES = [
     cues:["The hinge your machines miss — bend at the hips, spine neutral, soft knees.",
           "RDL: push the hips back, feel the hamstrings, bar close to the legs.",
           "Row: pull to the lower ribs from that hinged position.",
-          "Start light and nail the hinge before loading — this is a new pattern for you."],
+          "Brace hard and keep the spine neutral the whole set — the hinge is the skill here."],
     miss:"Rounding the lower back. If the spine bends, drop the weight." },
 
   // ---------- SIDE / FRONT DELT ----------
-  { id:"machine-lateral", name:"Machine Deltoid (Lateral) Raise", muscle:"side-delt", equip:"Machine", log:"27 kg × 12 · seat 5 / chest 4",
-    cues:["Pads on the upper arm, not the forearm.",
+  { id:"machine-lateral", name:"Machine Deltoid (Lateral) Raise", muscle:"side-delt", equip:"Machine", log:"27 kg × 12 · height 5 / distance 7",
+    cues:["Your settings: height 5, distance 7. Pads on the upper arm, not the forearm.",
           "Safest place to push to failure and run a drop set on the last set.",
           "Pause a beat at the top of each rep."],
     miss:"Half reps at the top instead of just lowering the weight when you hit failure." },
@@ -433,20 +439,20 @@ const EXERCISES = [
           "Stop at shoulder height — higher hands work to the traps.",
           "Slight forward lean puts more tension on the side head — this is the width muscle."],
     miss:"Swinging from the hips. If you can't stop it at the top, it's too heavy." },
-  { id:"db-front-raise", name:"DB Front Raise (front delt)", muscle:"side-delt", equip:"Dumbbell", log:"8 kg × 12",
+  { id:"db-front-raise", name:"DB Front Raise (front delt)", muscle:"front-delt", equip:"Dumbbell", log:"8 kg × 12",
     cues:["Raise to shoulder height, no higher.",
           "Front delts already get hit by pressing — keep this light, it's a finisher.",
           "One arm at a time keeps it strict."],
     miss:"Using momentum to swing the weight up past the shoulders." },
-  { id:"machine-ohp", name:"Shoulder Overhead Press (machine)", muscle:"side-delt", equip:"Machine", log:"20 kg (10+10) · seat 8 / height 4",
-    cues:["Your settings: seat 8, height 4.",
+  { id:"machine-ohp", name:"Shoulder Overhead Press (machine)", muscle:"side-delt", equip:"Machine", log:"20 kg (10+10) × 12 · height 8 / distance 4",
+    cues:["Your settings: height 8, distance 4.",
           "Press until the arms are nearly straight, don't slam the lockout.",
           "The heavy shoulder press that grows overall delt size — go up in weight over time."],
     miss:"Stopping way short of the top and only doing a partial press." },
 
   // ---------- REAR DELT ----------
-  { id:"reverse-pec-deck", name:"Reverse Pec Deck (rear delt)", muscle:"rear-delt", equip:"Machine", log:"23 kg × 12",
-    cues:["Same machine as the Pec Deck Fly — just face the pad and set the handles for the reverse (rear-delt) motion.",
+  { id:"reverse-pec-deck", name:"Reverse Pec Deck (rear delt)", muscle:"rear-delt", equip:"Machine", log:"23 kg × 12 · height 7 / distance 0",
+    cues:["Your settings: height 7, distance 0. Same machine as the Pec Deck Fly — just face the pad and set the handles for the reverse (rear-delt) motion.",
           "Chest flat on the pad, pull the handles out and back with your elbows.",
           "Fixed path means you can't really cheat it — that's why it beats the face pull for you.",
           "High reps: 15–20, squeeze at the back."],
@@ -465,6 +471,11 @@ const EXERCISES = [
           "Curl from that stretched 45° position up — the pad stops you cheating with the shoulders.",
           "Keep the upper arm on the pad the whole set; squeeze at the top, control the way down."],
     miss:"Lifting the elbow off the pad and swinging, which throws away the stretch that makes this curl work." },
+  { id:"biceps-curl-machine", name:"Biceps Curl Machine", muscle:"biceps", equip:"Machine", log:"27 kg × 12 · height 4",
+    cues:["Your setting: height 4. Upper arms flat on the pad, curl from the stretch.",
+          "Squeeze hard at the top, control the way down — no swinging.",
+          "The fixed path keeps it strict, so push the last set close to failure."],
+    miss:"Coming off the pad or using the shoulders to heave the weight up." },
   { id:"pushdown", name:"Tricep Pushdown (straight bar)", muscle:"triceps", equip:"Straight bar", log:"25 kg × 12",
     cues:["Straight/flat bar, not a rope.",
           "Elbows locked at the ribs the whole set — only the forearms move.",
@@ -472,8 +483,9 @@ const EXERCISES = [
     miss:"Leaning over the bar so bodyweight does the pushing instead of the triceps." },
 
   // ---------- ABS ----------
-  { id:"ab-crunch", name:"Ab Crunch (machine)", muscle:"abs", equip:"Machine", log:"23 kg × 12 · optional",
-    cues:["Curl the ribcage toward the hips — it's a crunch, not a hip fold.",
+  { id:"ab-crunch", name:"Ab Crunch (machine)", muscle:"abs", equip:"Machine", log:"23 kg × 12",
+    cues:["Optional finisher — not in the main days; add it when you want direct ab work.",
+          "Curl the ribcage toward the hips — it's a crunch, not a hip fold.",
           "Slow and controlled, squeeze at the bottom.",
           "Abs show up in the kitchen; this thickens them so they pop once you're lean."],
     miss:"Yanking with the arms and hip flexors instead of crunching the abs." }
@@ -485,13 +497,13 @@ const EXERCISES = [
 const DAYS = [
   { name:"Push A", day:"Monday", why:"Chest focus + side delts. Heavy pressing first, raises while fresh.",
     work:[
-      { id:"chest-press",    sets:4, reps:"8–12", rest:150 },
+      { id:"machine-chest-press", sets:4, reps:"8–12", rest:150 },
       { id:"incline-press",  sets:3, reps:"8–12", rest:120 },
       { id:"pec-deck",       sets:3, reps:"12–15", rest:90, note:"Chest fly grip (face in)." },
       { id:"machine-lateral",sets:4, reps:"12–15", rest:60, key:true },
       { id:"db-side-raise",  sets:3, reps:"12–15", rest:60, key:true },
       { id:"pushdown",       sets:3, reps:"12–15", rest:60, note:"Last set to failure." },
-      { id:"cable-curl",     sets:2, reps:"15–20", rest:45, note:"Biceps pump only — light, NOT to failure." }
+      { id:"biceps-curl-machine", sets:2, reps:"15–20", rest:45, note:"Biceps pump only — light, NOT to failure." }
   ]},
   { name:"Pull A", day:"Tuesday", why:"Back width + traps + biceps. Vertical pull first, then traps and rear delts.",
     work:[
@@ -500,7 +512,7 @@ const DAYS = [
       { id:"high-row",     sets:3, reps:"10–12", rest:90 },
       { id:"reverse-pec-deck", sets:3, reps:"15–20", rest:60 },
       { id:"shrug",        sets:4, reps:"10–12", rest:60 },
-      { id:"cable-curl",   sets:3, reps:"10–12", rest:60, note:"Last set to failure." },
+      { id:"biceps-curl-machine", sets:3, reps:"10–12", rest:60, note:"Last set to failure." },
       { id:"pushdown",     sets:2, reps:"15–20", rest:45, note:"Triceps pump only — light, NOT to failure." }
   ]},
   { name:"Push B", day:"Thursday", why:"Shoulder focus. Press heavy, machine lateral gets a drop set — this is the width day.",
@@ -508,10 +520,10 @@ const DAYS = [
       { id:"machine-ohp",    sets:4, reps:"6–10", rest:150 },
       { id:"machine-lateral",sets:4, reps:"10–12", rest:90, key:true, note:"Drop set on the last set." },
       { id:"db-front-raise", sets:3, reps:"12–15", rest:60 },
-      { id:"chest-press",    sets:3, reps:"8–12", rest:120 },
+      { id:"machine-chest-press", sets:3, reps:"8–12", rest:120 },
       { id:"incline-press",  sets:3, reps:"10–12", rest:90 },
       { id:"pushdown",       sets:3, reps:"12–15", rest:60, note:"Last set to failure." },
-      { id:"cable-curl",     sets:2, reps:"15–20", rest:45, note:"Biceps pump only — light, NOT to failure." }
+      { id:"biceps-curl-machine", sets:2, reps:"15–20", rest:45, note:"Biceps pump only — light, NOT to failure." }
   ]},
   { name:"Pull B", day:"Friday", why:"Back thickness + traps + biceps. The hinge pattern your machines miss.",
     work:[
@@ -520,13 +532,13 @@ const DAYS = [
       { id:"high-row",     sets:3, reps:"10–12", rest:90 },
       { id:"reverse-pec-deck", sets:3, reps:"15–20", rest:60 },
       { id:"shrug",        sets:4, reps:"10–12", rest:60 },
-      { id:"cable-curl",   sets:3, reps:"10–12", rest:60, note:"Last set to failure." },
+      { id:"biceps-curl-machine", sets:3, reps:"10–12", rest:60, note:"Last set to failure." },
       { id:"pushdown",     sets:2, reps:"15–20", rest:45, note:"Triceps pump only — light, NOT to failure." }
   ]}
 ];
 
 const MUSCLES = {
-  "chest":"Chest", "back":"Back", "side-delt":"Delts",
+  "chest":"Chest", "back":"Back", "side-delt":"Delts", "front-delt":"Front Delt",
   "rear-delt":"Rear Delt", "traps":"Traps", "biceps":"Biceps",
   "triceps":"Triceps", "abs":"Abs"
 };
