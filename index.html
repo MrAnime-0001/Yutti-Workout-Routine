@@ -688,6 +688,13 @@ function ensureAudio() {
 const TIMER_STORE = "vtaper-timer";
 const timerInputs = ["t-vol", "t-snd", "t-vib", "t-wake", "t-notif"];
 
+/* Persist the running timer so it survives an OS tab-eviction + reload (Firefox
+   backgrounds the page to save resources). endAt is wall-clock, so remaining time
+   stays accurate across the gap. */
+const RUN_STORE = "vtaper-run";
+const saveRun  = () => localStorage.setItem(RUN_STORE, JSON.stringify({ endAt, totalSec }));
+const clearRun = () => localStorage.removeItem(RUN_STORE);
+
 /* Alarm presets. f = "" means the built-in beep. Add an .mp3 to /sounds and a line here. */
 const SOUNDS = [
   { n: "Built-in beep", f: "" },
@@ -793,6 +800,7 @@ function paint() {
   }
   if (left === 0) {
     clearInterval(tick); tick = null;
+    clearRun();   // finished — don't re-ring on a later reload
     $("#clock").classList.add("ring");
     $("#dock-lbl").textContent = "Go";
     playAlarm();
@@ -805,6 +813,21 @@ function startTimer(sec) {
   ensureAudio();
   totalSec = sec;
   endAt = Date.now() + sec * 1000;
+  saveRun();
+  $("#dock").hidden = false;
+  $("#clock").classList.remove("ring");
+  $("#dock-lbl").textContent = "Rest";
+  clearInterval(tick);
+  paint();
+  tick = setInterval(paint, 250);
+  if (timerCfg().wake) requestWakeLock();
+}
+
+/* Resume a persisted timer after a reload — keeps the saved deadline (no reset).
+   No ensureAudio() here: there's no user gesture yet; audio unlocks on the next tap. */
+function resumeTimer(savedEndAt, savedTotal) {
+  endAt = savedEndAt;
+  totalSec = savedTotal;
   $("#dock").hidden = false;
   $("#clock").classList.remove("ring");
   $("#dock-lbl").textContent = "Rest";
@@ -816,6 +839,7 @@ function startTimer(sec) {
 
 function stopTimer() {
   clearInterval(tick); tick = null;
+  clearRun();
   $("#dock").hidden = true;
   $("#clock").classList.remove("ring");
   releaseWakeLock();
@@ -828,7 +852,7 @@ document.addEventListener("click", ev => {
 $("#t-stop").addEventListener("click", stopTimer);
 $("#t-add").addEventListener("click", () => {
   if (!tick) startTimer(30);
-  else { endAt += 30000; totalSec += 30; $("#clock").classList.remove("ring"); paint(); }
+  else { endAt += 30000; totalSec += 30; saveRun(); $("#clock").classList.remove("ring"); paint(); }
 });
 
 $("#presets").innerHTML = [5, 30, 45, 60, 90, 120, 150, 180]
@@ -866,6 +890,30 @@ $("#presets").innerHTML = [5, 30, 45, 60, 90, 120, 150, 180]
     }
   });
   $("#t-test").addEventListener("click", () => { ensureAudio(); playAlarm(); });
+})();
+
+/* Restore a timer that was running when the tab got evicted + reloaded. */
+(function restoreTimer() {
+  let run;
+  try { run = JSON.parse(localStorage.getItem(RUN_STORE) || "null"); } catch { run = null; }
+  if (!run || !run.endAt) return;
+  if (run.endAt > Date.now()) {
+    resumeTimer(run.endAt, run.totalSec);
+  } else {
+    // Rest ended while away. Show the finished state and try the alarm.
+    // ponytail: on an auto-reload there's no user gesture, so the browser may block
+    // the SOUND until the first tap; the visual ended-state + vibration/notification
+    // are best-effort. Ringing while the page is fully dead is impossible for a static
+    // site on Firefox (Notification Triggers is Chromium-only) — out of scope.
+    totalSec = run.totalSec; endAt = run.endAt;
+    clearRun();
+    $("#dock").hidden = false;
+    $("#clock").textContent = "0:00";
+    $("#clock").classList.add("ring");
+    $("#dock-lbl").textContent = "Go";
+    playAlarm();
+    setTimeout(stopTimer, 5000);
+  }
 })();
 
 /* ---------------------------------------------------------------
