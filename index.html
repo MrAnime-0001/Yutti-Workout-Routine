@@ -412,7 +412,7 @@ const EXERCISES = [
           "Full stretch at the top: let the shoulder blades rise.",
           "Lean back ~15° and hold that angle — don't rock."],
     miss:"Pulling behind the neck. No extra lat, plenty of shoulder risk." },
-  { id:"machine-row", name:"Machine Row", muscle:"back", equip:"Machine", log:"36 kg × 12",
+  { id:"machine-row", name:"Machine Row", muscle:"back", equip:"Machine", log:"41 kg × 12 · height 8 / distance 1",
     cues:["Chest against the pad, pull with the elbows.",
           "Full stretch forward, squeeze the back at the end."],
     miss:"Peeling off the pad and using the whole body to move the stack." },
@@ -421,7 +421,7 @@ const EXERCISES = [
           "Let the shoulders stretch forward at the front of each rep.",
           "Drive the elbows down and back."],
     miss:"Shrugging the weight up instead of rowing it." },
-  { id:"bent-row-rdl", name:"Bent-Over Row / RDL", muscle:"back", equip:"Barbell / Dumbbell", log:"40 kg (20+20) × 12",
+  { id:"bent-row-rdl", name:"Bent-Over Row / RDL", muscle:"back", equip:"Barbell / Dumbbell", log:"20 kg × 12",
     cues:["The hinge your machines miss — bend at the hips, spine neutral, soft knees.",
           "RDL: push the hips back, feel the hamstrings, bar close to the legs.",
           "Row: pull to the lower ribs from that hinged position.",
@@ -439,18 +439,13 @@ const EXERCISES = [
           "The cable keeps constant tension on the side head — that's why it beats the machine, which drifts into the traps.",
           "Slight forward lean biases the side delt — this is the width muscle."],
     miss:"Shrugging it up into the traps instead of raising with the side delt." },
-  { id:"db-side-raise", name:"Dumbbell Lateral Raise (Side)", muscle:"side-delt", equip:"Dumbbell", log:"12 kg (6+6) × 12",
-    cues:["The Side / wingspan variant — raise both arms out to the sides.",
+  { id:"db-side-raise", name:"Dumbbell Lateral Raise", muscle:"side-delt", equip:"Dumbbell", log:"12 kg (6+6) × 12",
+    cues:["Raise both arms out to the sides — side-delt detail work.",
           "Lead with the elbow, hand trailing slightly behind; stop at shoulder height.",
           "Slight forward lean puts more tension on the side head — this is the width muscle."],
     miss:"Swinging from the hips. If you can't stop it at the top, it's too heavy." },
-  { id:"db-front-raise", name:"Dumbbell Lateral Raise (Frontal)", muscle:"front-delt", equip:"Dumbbell", log:"12 kg (6+6) × 12",
-    cues:["The Frontal variant — raise both arms out in front to shoulder height, no higher.",
-          "Front delts already get hit by pressing — keep this controlled, it's a finisher.",
-          "Strict tempo; don't let momentum take over."],
-    miss:"Using momentum to swing the weight up past the shoulders." },
-  { id:"machine-ohp", name:"Shoulder Overhead Press (machine)", muscle:"side-delt", equip:"Machine", log:"60 kg (30+30) × 12 · height 8 / distance 6",
-    cues:["Your settings: height 8, distance 6.",
+  { id:"machine-ohp", name:"Shoulder Overhead Press (machine)", muscle:"side-delt", equip:"Machine", log:"40 kg (20+20) × 12 · height 3 / distance 4",
+    cues:["Your settings: height 3, distance 4. Overhead press for delt mass — the laterals are for side-delt detail.",
           "Press until the arms are nearly straight, don't slam the lockout.",
           "The heavy shoulder press that grows overall delt size — go up in weight over time."],
     miss:"Stopping way short of the top and only doing a partial press." },
@@ -505,24 +500,24 @@ const EXERCISES = [
    PROGRAM
 --------------------------------------------------------------- */
 const DAYS = [
-  { name:"Push A", day:"Monday", why:"Chest focus + side delts. Heavy pressing first, raises while fresh.",
+  { name:"Push A", day:"Monday", why:"Chest + side delts. Overhead press for delt mass, then laterals detail the side delt.",
     work:[
       { id:"machine-chest-press", sets:4, reps:"8–12", rest:150 },
       { id:"incline-press",  sets:3, reps:"8–12", rest:120 },
       { id:"pec-deck",       sets:3, reps:"12–15", rest:90, note:"Chest fly grip (face in)." },
+      { id:"machine-ohp",    sets:3, reps:"6–10", rest:150, note:"Press for mass." },
       { id:"cable-lateral-raise", sets:4, reps:"12–15", rest:60, key:true },
-      { id:"db-side-raise",  sets:3, reps:"12–15", rest:60, key:true },
       { id:"pushdown",       sets:3, reps:"12–15", rest:60, note:"Last set to failure." },
       { id:"cable-bicep-curl", sets:2, reps:"15–20", rest:45, note:"Biceps pump only — light, NOT to failure." }
   ]},
   { name:"Pull A", day:"Tuesday", why:"Back width + traps + biceps, plus a side-delt block — shoulders 3× this week for width.",
     work:[
       { id:"lat-pulldown", sets:4, reps:"8–12", rest:120 },
-      { id:"machine-row",  sets:4, reps:"8–12", rest:120 },
+      { id:"bent-row-rdl", sets:4, reps:"8–10", rest:150 },
       { id:"high-row",     sets:3, reps:"10–12", rest:90 },
       { id:"reverse-pec-deck", sets:3, reps:"15–20", rest:60 },
+      { id:"machine-ohp",    sets:3, reps:"6–10", rest:150, note:"Press for mass." },
       { id:"db-side-raise",  sets:4, reps:"12–15", rest:60, key:true },
-      { id:"db-front-raise", sets:3, reps:"12–15", rest:60 },
       { id:"shrug",        sets:4, reps:"10–12", rest:60 },
       { id:"cable-bicep-curl", sets:3, reps:"10–12", rest:60, note:"Last set to failure." },
       { id:"pushdown",     sets:2, reps:"15–20", rest:45, note:"Triceps pump only — light, NOT to failure." }
@@ -531,7 +526,6 @@ const DAYS = [
     work:[
       { id:"machine-ohp",    sets:4, reps:"6–10", rest:150 },
       { id:"cable-lateral-raise", sets:4, reps:"10–12", rest:90, key:true, note:"Drop set on the last set." },
-      { id:"db-front-raise", sets:3, reps:"12–15", rest:60 },
       { id:"machine-chest-press", sets:3, reps:"8–12", rest:120 },
       { id:"incline-press",  sets:3, reps:"10–12", rest:90 },
       { id:"pushdown",       sets:3, reps:"12–15", rest:60, note:"Last set to failure." },
@@ -550,7 +544,7 @@ const DAYS = [
 ];
 
 const MUSCLES = {
-  "chest":"Chest", "back":"Back", "side-delt":"Delts", "front-delt":"Front Delt",
+  "chest":"Chest", "back":"Back", "side-delt":"Delts",
   "rear-delt":"Rear Delt", "traps":"Traps", "biceps":"Biceps",
   "triceps":"Triceps", "abs":"Abs"
 };
