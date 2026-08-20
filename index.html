@@ -228,7 +228,7 @@
     /* label's margin-right:auto spreads the dock edge-to-edge and looks stretched;
        drop it and center the ring + buttons as a tight group. */
     #dock { bottom: var(--nav-h); padding-bottom: calc(10px + env(safe-area-inset-bottom, 0)); gap: 12px; }
-    #dock .lbl { display: none; }
+    #dock .lbl { margin-right: 0; font-size: 12px; }
     .chips { position: static; background: none; padding: 0; }
     .exrow { grid-template-columns: 24px 1fr; grid-template-areas: "chk ex" "meta meta"; row-gap: 10px; }
     .exrow .chk { grid-area: chk; }
@@ -389,11 +389,16 @@ const EXERCISES = [
           "Press the handles out without locking the elbows — keep tension on the pecs.",
           "Control the way back for a full stretch before the next rep."],
     miss:"Letting the shoulders roll forward at the top — keep the chest proud." },
-  { id:"incline-press", name:"Incline Press (machine)", muscle:"chest", equip:"Machine", log:"20 kg (10+10) × 12 · height 8 / distance 4",
-    cues:["Your settings: height 8, distance 4 — same every time so the numbers compare.",
+  { id:"incline-press", name:"Incline Press (machine)", muscle:"chest", equip:"Machine", log:"20 kg (10+10) × 12 · height 7 / distance 3",
+    cues:["Your settings: height 7, distance 3 — same every time so the numbers compare.",
           "Hits the upper chest, which fills out the top of the pecs.",
           "Full stretch at the bottom, squeeze at the top."],
     miss:"Half reps. The bottom third builds the chest." },
+  { id:"incline-bench-press", name:"Incline Bench Press", muscle:"chest", equip:"Barbell", log:"24 kg (12+12) × 12 · distance 3",
+    cues:["Your setting: distance 3. Barbell incline for the upper chest.",
+          "Lower to the upper chest, drive up without fully locking out — keep tension on the pecs.",
+          "Control the descent for the stretch; don't bounce the bar off the chest."],
+    miss:"Flaring the elbows or bouncing the bar — keep a smooth, controlled path." },
   { id:"pec-deck", name:"Pec Deck Fly (chest)", muscle:"chest", equip:"Machine", log:"41 kg × 12 · height 4 / distance 5",
     cues:["Sit facing INTO the machine, chest on the pad — this is the chest-fly direction.",
           "Same machine as the Reverse Pec Deck: turn around to face the pad and it becomes the rear-delt move.",
@@ -518,7 +523,6 @@ const DAYS = [
       { id:"reverse-pec-deck", sets:3, reps:"15–20", rest:60 },
       { id:"machine-ohp",    sets:3, reps:"6–10", rest:150, note:"Press for mass." },
       { id:"db-side-raise",  sets:4, reps:"12–15", rest:60, key:true },
-      { id:"shrug",        sets:4, reps:"10–12", rest:60 },
       { id:"cable-bicep-curl", sets:3, reps:"10–12", rest:60, note:"Last set to failure." },
       { id:"pushdown",     sets:2, reps:"15–20", rest:45, note:"Triceps pump only — light, NOT to failure." }
   ]},
@@ -537,7 +541,6 @@ const DAYS = [
       { id:"lat-pulldown", sets:3, reps:"10–12", rest:120 },
       { id:"high-row",     sets:3, reps:"10–12", rest:90 },
       { id:"reverse-pec-deck", sets:3, reps:"15–20", rest:60 },
-      { id:"shrug",        sets:4, reps:"10–12", rest:60 },
       { id:"cable-bicep-curl", sets:3, reps:"10–12", rest:60, note:"Last set to failure." },
       { id:"pushdown",     sets:2, reps:"15–20", rest:45, note:"Triceps pump only — light, NOT to failure." }
   ]}
@@ -552,6 +555,7 @@ const MUSCLES = {
 const byId = Object.fromEntries(EXERCISES.map(e => [e.id, e]));
 const $ = s => document.querySelector(s);
 const fmtRest = s => s >= 60 ? (s % 60 ? (s/60).toFixed(1) + " min" : (s/60) + " min") : s + "s";
+const mmss = s => Math.floor(s/60) + ":" + String(s%60).padStart(2, "0");
 
 /* ---------------------------------------------------------------
    RENDER: program
@@ -822,7 +826,7 @@ function startTimer(sec) {
   saveRun();
   $("#dock").hidden = false;
   $("#clock").classList.remove("ring");
-  $("#dock-lbl").textContent = "Rest";
+  $("#dock-lbl").textContent = "set " + mmss(totalSec);
   clearInterval(tick);
   paint();
   tick = setInterval(paint, 250);
@@ -836,7 +840,7 @@ function resumeTimer(savedEndAt, savedTotal) {
   totalSec = savedTotal;
   $("#dock").hidden = false;
   $("#clock").classList.remove("ring");
-  $("#dock-lbl").textContent = "Rest";
+  $("#dock-lbl").textContent = "set " + mmss(totalSec);
   clearInterval(tick);
   paint();
   tick = setInterval(paint, 250);
@@ -858,7 +862,7 @@ document.addEventListener("click", ev => {
 $("#t-stop").addEventListener("click", stopTimer);
 $("#t-add").addEventListener("click", () => {
   if (!tick) startTimer(30);
-  else { endAt += 30000; totalSec += 30; saveRun(); $("#clock").classList.remove("ring"); paint(); }
+  else { endAt += 30000; totalSec += 30; saveRun(); $("#dock-lbl").textContent = "set " + mmss(totalSec); $("#clock").classList.remove("ring"); paint(); }
 });
 
 $("#presets").innerHTML = [5, 30, 45, 60, 90, 120, 150, 180]
