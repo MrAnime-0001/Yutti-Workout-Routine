@@ -31,6 +31,9 @@
   /* .wrap is shared by header + main; the tall bottom padding is only for the
      scrolling content column, not the sticky header (it inflated header height). */
   header .wrap { padding-bottom: 0; }
+  /* the running timer dock is fixed over the bottom; add clearance so page content
+     (e.g. the lower preset buttons) can scroll clear of it. */
+  body.dock-on .wrap { padding-bottom: 170px; }
 
   /* --- header --- */
   header {
@@ -206,6 +209,7 @@
   /* --- mobile: nav becomes a bottom tab bar --- */
   @media (max-width: 640px) {
     .wrap { padding-bottom: calc(var(--nav-h) + 40px); }
+    body.dock-on .wrap { padding-bottom: calc(var(--nav-h) + 150px); }
     /* backdrop-filter on header would make it the containing block for the
        fixed nav below (bottom:0 anchors to header, not the viewport). Drop it.
        Non-sticky on mobile: a sticky top header fights the browser's collapsing
@@ -824,7 +828,7 @@ function startTimer(sec) {
   totalSec = sec;
   endAt = Date.now() + sec * 1000;
   saveRun();
-  $("#dock").hidden = false;
+  $("#dock").hidden = false; document.body.classList.add("dock-on");
   $("#clock").classList.remove("ring");
   $("#dock-lbl").textContent = "set " + mmss(totalSec);
   clearInterval(tick);
@@ -838,7 +842,7 @@ function startTimer(sec) {
 function resumeTimer(savedEndAt, savedTotal) {
   endAt = savedEndAt;
   totalSec = savedTotal;
-  $("#dock").hidden = false;
+  $("#dock").hidden = false; document.body.classList.add("dock-on");
   $("#clock").classList.remove("ring");
   $("#dock-lbl").textContent = "set " + mmss(totalSec);
   clearInterval(tick);
@@ -850,7 +854,7 @@ function resumeTimer(savedEndAt, savedTotal) {
 function stopTimer() {
   clearInterval(tick); tick = null;
   clearRun();
-  $("#dock").hidden = true;
+  $("#dock").hidden = true; document.body.classList.remove("dock-on");
   $("#clock").classList.remove("ring");
   releaseWakeLock();
 }
@@ -917,7 +921,7 @@ $("#presets").innerHTML = [5, 30, 45, 60, 90, 120, 150, 180]
     // site on Firefox (Notification Triggers is Chromium-only) — out of scope.
     totalSec = run.totalSec; endAt = run.endAt;
     clearRun();
-    $("#dock").hidden = false;
+    $("#dock").hidden = false; document.body.classList.add("dock-on");
     $("#clock").textContent = "0:00";
     $("#clock").classList.add("ring");
     $("#dock-lbl").textContent = "Go";
