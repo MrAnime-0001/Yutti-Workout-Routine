@@ -383,23 +383,12 @@ const yt = q => "https://www.youtube.com/results?search_query=" + encodeURICompo
 --------------------------------------------------------------- */
 const EXERCISES = [
   // ---------- CHEST ----------
-  { id:"chest-press", name:"Barbell Smith Chest Press Machine", muscle:"chest", equip:"Barbell", log:"30 kg (15+15) × 12",
-    cues:["Shoulder blades pinned down and back the whole set.",
-          "Lower to the mid-chest, drive up without fully locking out — keep tension on the pecs.",
-          "Control the weight down ~2 seconds; the stretch is where the growth is."],
-    miss:"Bouncing the bar off the chest and losing that bottom stretch." },
   { id:"machine-chest-press", name:"Machine Chest Press", muscle:"chest", equip:"Machine", log:"50 kg (25+25) × 12 · height 7 / distance 2",
     cues:["Your settings: height 7, distance 2. Chest up, shoulder blades pinned down and back.",
           "Press the handles out without locking the elbows — keep tension on the pecs.",
           "Control the way back for a full stretch before the next rep.",
           "Testing 27.5+27.5 = 55 kg — move up once 12 clean reps at 50 feel easy."],
     miss:"Letting the shoulders roll forward at the top — keep the chest proud." },
-  { id:"incline-press", name:"Incline Press (machine)", muscle:"chest", equip:"Machine", log:"20 kg (10+10) × 12 · height 7 / distance 2",
-    cues:["Benched from the program — the machine doesn't fit your body size and the angle is wrong for you. Incline Bench Press replaces it. Kept here as a reference.",
-          "Your settings: height 7, distance 2 — same every time so the numbers compare.",
-          "Hits the upper chest, which fills out the top of the pecs.",
-          "Full stretch at the bottom, squeeze at the top."],
-    miss:"Half reps. The bottom third builds the chest." },
   { id:"incline-bench-press", name:"Incline Bench Press", muscle:"chest", equip:"Barbell", log:"24 kg (12+12) × 12 · height 3 / distance 4",
     cues:["Your settings: height 3, distance 4. Barbell incline for the upper chest.",
           "Lower to the upper chest, drive up without fully locking out — keep tension on the pecs.",
@@ -412,11 +401,6 @@ const EXERCISES = [
           "Your settings: height 4, distance 5 — handles sit at mid-chest for flyes.",
           "Squeeze for a beat where the tension peaks."],
     miss:"Cutting the range short — let the arms travel back for a real stretch before closing." },
-  { id:"cable-chest-fly", name:"Cable Chest Fly", muscle:"chest", equip:"Cable", log:"7.5 kg × 12 · height 12",
-    cues:["Cable version of the pec deck — set both pulleys and bring the handles together in front of the chest.",
-          "Your setting: height 12. Keep a slight, fixed bend in the elbows the whole set.",
-          "Let the arms travel back for a full stretch, then squeeze at the middle for a beat."],
-    miss:"Bending the elbows to press instead of flying — keep the arc wide and the elbows locked in place." },
 
   // ---------- BACK ----------
   { id:"lat-pulldown", name:"Lat Pulldown", muscle:"back", equip:"Cable", log:"25 kg × 12 · distance 3",
@@ -441,11 +425,6 @@ const EXERCISES = [
     miss:"Rounding the lower back. If the spine bends, drop the weight." },
 
   // ---------- SIDE / FRONT DELT ----------
-  { id:"machine-lateral", name:"Machine Deltoid (Lateral) Raise", muscle:"side-delt", equip:"Machine", log:"36 kg × 12 · height 5 / distance 7",
-    cues:["Benched from the program — too easy to turn into a trap movement, and DB Shrugs already cover traps. Kept here as a reference; cable/dumbbell laterals replace it.",
-          "Your settings: height 5, distance 7. Pads on the upper arm, not the forearm.",
-          "Pause a beat at the top of each rep."],
-    miss:"Half reps at the top instead of just lowering the weight when you hit failure." },
   { id:"cable-lateral-raise", name:"Cable Lateral Raise", muscle:"side-delt", equip:"Cable", log:"5 kg × 12 · distance 0",
     cues:["Your setting: distance 0. Lead with the elbow, stop at shoulder height.",
           "The cable keeps constant tension on the side head — that's why it beats the machine, which drifts into the traps.",
@@ -478,16 +457,6 @@ const EXERCISES = [
     miss:"Bouncing a heavy weight an inch. Cut the load, get the full shrug and the pause." },
 
   // ---------- ARMS ----------
-  { id:"cable-curl", name:"Incline Barbell Curl", muscle:"biceps", equip:"Barbell + incline bench", log:"20 kg (10+10) × 12",
-    cues:["Sit upright, arm resting on the incline pad, barbell hanging at ~45°.",
-          "Curl from that stretched 45° position up — the pad stops you cheating with the shoulders.",
-          "Keep the upper arm on the pad the whole set; squeeze at the top, control the way down."],
-    miss:"Lifting the elbow off the pad and swinging, which throws away the stretch that makes this curl work." },
-  { id:"biceps-curl-machine", name:"Biceps Curl Machine", muscle:"biceps", equip:"Machine", log:"32 kg × 12 · height 4",
-    cues:["Your setting: height 4. Upper arms flat on the pad, curl from the stretch.",
-          "Squeeze hard at the top, control the way down — no swinging.",
-          "The fixed path keeps it strict, so push the last set close to failure."],
-    miss:"Coming off the pad or using the shoulders to heave the weight up." },
   { id:"cable-bicep-curl", name:"Cable Bicep Curls", muscle:"biceps", equip:"Cable", log:"10 kg (single) / 20 kg (both) × 12 · distance 0",
     cues:["Your setting: distance 0. Same move either way — one arm at a time (7.5 kg), or both arms together (7.5+7.5) to save time.",
           "Elbow pinned to your side, curl from a full stretch and squeeze at the top.",
