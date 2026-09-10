@@ -274,7 +274,7 @@
   <section id="view-program">
     <p class="eyebrow">The split</p>
     <h2>Your split</h2>
-    <p class="sub">Mon Push A · Tue Pull A · Thu Push B · Fri Pull B — each muscle twice a week. Side delts on <b>both push days</b> for width; traps, rear delts and arms on the pull days. Each day ends with a light antagonist pump — biceps on push days, triceps on pull days — so you look full for posing without cooking tomorrow's muscle.</p>
+    <p class="sub">Mon Push A · Tue Pull A · Thu Push B · Fri Pull B — each muscle twice a week. Side delts on <b>both push days</b> for width; traps, rear delts and arms on the pull days. Each day ends with an arm pump — two triceps finishers on push days, biceps on pull days — so you look full for posing without cooking tomorrow's muscle.</p>
 
     <div class="info">
       <h3>How to grow while cutting</h3>
@@ -462,10 +462,17 @@ const EXERCISES = [
           "Elbow pinned to your side, curl from a full stretch and squeeze at the top.",
           "Control the way down — no swinging from the shoulder or hips."],
     miss:"Rocking the body to fling the cable up instead of curling with the biceps." },
+  { id:"cable-tricep-extension", name:"Cable Tricep Overhead Extension (Rope)", muscle:"triceps", equip:"Rope", log:"12.5 kg × 12 · distance 9",
+    cues:["Rope, not a bar — the rope lets your hands split apart at the top for a harder squeeze.",
+          "Your setting: distance 9. Overhead — upper arms locked beside your head, elbows pointing forward.",
+          "Stretch deep behind the head, then extend to a straight arm and squeeze.",
+          "First of the two triceps finishers: the overhead stretch is the position that dies first once you're fatigued, so it gets the fresher end."],
+    miss:"Letting the elbows flare and drift forward — that turns it into a press and pulls the long head out of the stretch." },
   { id:"pushdown", name:"Cable Tricep Pushdown (straight bar)", muscle:"triceps", equip:"Straight bar", log:"30 kg × 12",
     cues:["Straight/flat bar, not a rope.",
           "Elbows locked at the ribs the whole set — only the forearms move.",
-          "Push all the way to a straight arm and squeeze; triceps are two-thirds of the arm."],
+          "Push all the way to a straight arm and squeeze; triceps are two-thirds of the arm.",
+          "Second finisher, and the one that survives fatigue — the elbows-at-ribs path is stable, so you can still grind clean reps after the overhead work."],
     miss:"Leaning over the bar so bodyweight does the pushing instead of the triceps." },
 
   // ---------- ABS ----------
@@ -488,7 +495,8 @@ const DAYS = [
       { id:"incline-bench-press", sets:3, reps:"8–12", rest:120 },
       { id:"machine-ohp",    sets:3, reps:"6–10", rest:120, note:"Press for mass." },
       { id:"cable-lateral-raise", sets:4, reps:"12–15", rest:90, key:true },
-      { id:"pushdown",       sets:3, reps:"12–15", rest:90, note:"Last set to failure." },  ]},
+      { id:"cable-tricep-extension", sets:3, reps:"10–12", rest:90, note:"Finisher 1 — overhead stretch while you're fresher." },
+      { id:"pushdown",       sets:2, reps:"12–15", rest:90, note:"Finisher 2 — last set to failure." },  ]},
   { name:"Pull A", day:"Tuesday", why:"Back width + traps + biceps, plus a side-delt block — shoulders 3× this week for width.",
     work:[
       { id:"lat-pulldown", sets:4, reps:"8–12", rest:120 },
@@ -505,7 +513,8 @@ const DAYS = [
       { id:"incline-bench-press", sets:3, reps:"10–12", rest:90 },
       { id:"machine-ohp",    sets:4, reps:"6–10", rest:120 },
       { id:"cable-lateral-raise", sets:4, reps:"10–12", rest:90, key:true, note:"Drop set on the last set." },
-      { id:"pushdown",       sets:3, reps:"12–15", rest:90, note:"Last set to failure." },  ]},
+      { id:"cable-tricep-extension", sets:3, reps:"10–12", rest:90, note:"Finisher 1 — overhead stretch while you're fresher." },
+      { id:"pushdown",       sets:2, reps:"12–15", rest:90, note:"Finisher 2 — last set to failure." },  ]},
   { name:"Pull B", day:"Friday", why:"Same pull order as Pull A — lat pulldown first, then the hinge your machines miss. Back thickness + traps + biceps.",
     work:[
       { id:"lat-pulldown", sets:3, reps:"10–12", rest:120 },
@@ -555,6 +564,7 @@ function renderProgram() {
     return `<details class="day ${d.optional ? "optional" : ""}">
       <summary>
         <span class="day-name">${d.name}</span> <span class="tag">${d.day}</span>
+        <span class="tag">${d.work.length} exercises</span>
         <span class="why">${d.why}</span>
       </summary>
       <div class="daybody">
