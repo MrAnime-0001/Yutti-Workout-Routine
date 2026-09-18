@@ -403,7 +403,7 @@ const EXERCISES = [
     miss:"Cutting the range short — let the arms travel back for a real stretch before closing." },
 
   // ---------- BACK ----------
-  { id:"lat-pulldown", name:"Lat Pulldown", muscle:"back", equip:"Cable", log:"35 kg × 12 · distance 3",
+  { id:"lat-pulldown", name:"Lat Pulldown", muscle:"back", equip:"Cable", log:"30 kg × 12 · distance 3",
     cues:["Think elbows down into your back pockets, not hands down.",
           "Full stretch at the top: let the shoulder blades rise.",
           "Lean back ~15° and hold that angle — don't rock."],
@@ -417,16 +417,17 @@ const EXERCISES = [
           "Let the shoulders stretch forward at the front of each rep.",
           "Drive the elbows down and back."],
     miss:"Shrugging the weight up instead of rowing it." },
-  { id:"bent-row-rdl", name:"Bent-Over Row / RDL", muscle:"back", equip:"Barbell / Dumbbell", log:"17.5 kg × 12",
+  { id:"bent-row-rdl", name:"Bent-Over Row / RDL", muscle:"back", equip:"Barbell / Dumbbell", log:"25 kg × 12 · drops 22.5 → 20 kg",
     cues:["The hinge your machines miss — bend at the hips, spine neutral, soft knees.",
           "RDL: push the hips back, feel the hamstrings, bar close to the legs.",
           "Row: pull to the lower ribs from that hinged position.",
-          "Brace hard and keep the spine neutral the whole set — the hinge is the skill here."],
+          "Brace hard and keep the spine neutral the whole set — the hinge is the skill here.",
+          "Double drop: start at 25 kg; when you hit failure, drop 2.5 kg and keep going, then drop 2.5 kg once more (25 → 22.5 → 20)."],
     miss:"Rounding the lower back. If the spine bends, drop the weight." },
 
   // ---------- SIDE / FRONT DELT ----------
-  { id:"cable-lateral-raise", name:"Cable Lateral Raise", muscle:"side-delt", equip:"Cable", log:"5 kg × 12 · distance 0",
-    cues:["Your setting: distance 0. Lead with the elbow, stop at shoulder height.",
+  { id:"cable-lateral-raise", name:"Cable Lateral Raise", muscle:"side-delt", equip:"Cable", log:"5 kg × 12 · distance 1",
+    cues:["Your setting: distance 1. Lead with the elbow, stop at shoulder height.",
           "The cable keeps constant tension on the side head — that's why it beats the machine, which drifts into the traps.",
           "Slight forward lean biases the side delt — this is the width muscle."],
     miss:"Shrugging it up into the traps instead of raising with the side delt." },
@@ -435,7 +436,7 @@ const EXERCISES = [
           "Lead with the elbow, hand trailing slightly behind; stop at shoulder height.",
           "Slight forward lean puts more tension on the side head — this is the width muscle."],
     miss:"Swinging from the hips. If you can't stop it at the top, it's too heavy." },
-  { id:"machine-ohp", name:"Shoulder Overhead Press (machine)", muscle:"side-delt", equip:"Machine", log:"50 kg (25+25) × 12 · height 3 / distance 4",
+  { id:"machine-ohp", name:"Shoulder Overhead Press (machine)", muscle:"side-delt", equip:"Machine", log:"65 kg (32.5+32.5) × 12 · height 3 / distance 4",
     cues:["Your settings: height 3, distance 4. Overhead press for delt mass — the laterals are for side-delt detail.",
           "Press until the arms are nearly straight, don't slam the lockout.",
           "The heavy shoulder press that grows overall delt size — go up in weight over time."],
@@ -468,7 +469,7 @@ const EXERCISES = [
           "Stretch deep behind the head, then extend to a straight arm and squeeze.",
           "First of the two triceps finishers: the overhead stretch is the position that dies first once you're fatigued, so it gets the fresher end."],
     miss:"Letting the elbows flare and drift forward — that turns it into a press and pulls the long head out of the stretch." },
-  { id:"pushdown", name:"Cable Tricep Pushdown (straight bar)", muscle:"triceps", equip:"Straight bar", log:"30 kg × 12",
+  { id:"pushdown", name:"Cable Tricep Pushdown (straight bar)", muscle:"triceps", equip:"Straight bar", log:"20 kg × 12",
     cues:["Straight/flat bar, not a rope.",
           "Elbows locked at the ribs the whole set — only the forearms move.",
           "Push all the way to a straight arm and squeeze; triceps are two-thirds of the arm.",
@@ -500,7 +501,7 @@ const DAYS = [
   { name:"Pull A", day:"Tuesday", why:"Back width + traps + biceps, plus a side-delt block — shoulders 3× this week for width.",
     work:[
       { id:"lat-pulldown", sets:4, reps:"8–12", rest:120 },
-      { id:"bent-row-rdl", sets:4, reps:"8–10", rest:120 },
+      { id:"bent-row-rdl", sets:4, reps:"8–10", rest:120, note:"At failure drop 2.5 kg, twice (25 → 22.5 → 20)." },
       { id:"high-row",     sets:3, reps:"10–12", rest:90 },
       { id:"reverse-pec-deck", sets:3, reps:"15–20", rest:90 },
       { id:"machine-ohp",    sets:3, reps:"6–10", rest:120, note:"Press for mass." },
@@ -518,7 +519,7 @@ const DAYS = [
   { name:"Pull B", day:"Friday", why:"Same pull order as Pull A — lat pulldown first, then the hinge your machines miss. Back thickness + traps + biceps.",
     work:[
       { id:"lat-pulldown", sets:3, reps:"10–12", rest:120 },
-      { id:"bent-row-rdl", sets:4, reps:"8–10", rest:120 },
+      { id:"bent-row-rdl", sets:4, reps:"8–10", rest:120, note:"At failure drop 2.5 kg, twice (25 → 22.5 → 20)." },
       { id:"high-row",     sets:3, reps:"10–12", rest:90 },
       { id:"reverse-pec-deck", sets:3, reps:"15–20", rest:90 },
       { id:"cable-bicep-curl", sets:3, reps:"10–12", rest:90, note:"Last set to failure." },  ]}
