@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0b0d10">
 <title>Yutti's Workout Routine</title>
 <style>
   :root {
@@ -20,6 +21,9 @@
     --nav-h: 66px;
   }
   * { box-sizing: border-box; }
+  /* touch: no grey tap flash, and no 300ms double-tap-zoom delay on controls */
+  button, input, a { -webkit-tap-highlight-color: transparent; }
+  button, input[type=checkbox] { touch-action: manipulation; }
   body {
     margin: 0;
     background: var(--bg);
@@ -54,7 +58,6 @@
     transition: color .15s, border-color .15s;
   }
   nav button .ico { font-size: 15px; line-height: 1; }
-  nav button:hover { color: var(--text); }
   nav button[aria-selected="true"] { background: var(--grad); color: #12140f; border-color: transparent; font-weight: 700; }
 
   section[hidden] { display: none; }
@@ -101,7 +104,6 @@
   .exrow .chk { display: flex; align-items: center; justify-content: center; margin: 0; }
   input[type=checkbox] { accent-color: var(--good); width: 18px; height: 18px; cursor: pointer; }
   .exrow .ex a { color: var(--text); text-decoration: none; font-weight: 500; border-bottom: 1px dotted var(--dim); }
-  .exrow .ex a:hover { color: var(--accent-2); border-bottom-color: var(--accent-2); }
   .exrow.key .ex a { color: var(--accent); }
   .exrow .ex .note { display: block; color: var(--dim); font-size: 12px; margin-top: 3px; }
   .exrow .meta { display: flex; align-items: center; gap: 16px; }
@@ -115,7 +117,6 @@
     background: var(--panel); color: var(--dim); border: 1px solid var(--line);
     border-radius: 7px; padding: 5px 11px; font: inherit; font-size: 12px; cursor: pointer; white-space: nowrap;
   }
-  .rest-btn:hover { color: var(--accent); border-color: var(--accent); }
 
   /* --- library --- */
   .chips {
@@ -134,27 +135,16 @@
     background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px;
     transition: transform .15s, border-color .15s;
   }
-  .card:hover { transform: translateY(-2px); border-color: #3a414d; }
   .card h3 { margin: 0 0 3px; font-size: 15px; font-weight: 700; }
   .card h3 a { color: var(--text); text-decoration: none; }
-  .card h3 a:hover { color: var(--accent-2); }
   .card .meta { color: var(--dim); font-size: 12px; margin-bottom: 5px; }
   .card .load { color: var(--good); font-size: 12px; font-weight: 700; margin-bottom: 10px; }
   .card ul { margin: 0; padding-left: 17px; font-size: 13px; color: #cbd2dc; }
   .card ul li { margin-bottom: 4px; }
   .card .miss { margin: 10px 0 0; font-size: 12px; color: #ffb4a2; }
   .card .yt { display: inline-block; margin-top: 10px; font-size: 12px; color: var(--accent-2); text-decoration: none; }
-  .card .yt:hover { text-decoration: underline; }
 
-  /* --- info panel --- */
-  .info { background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: var(--radius); padding: 16px 18px; margin: 16px 0; }
-  .info h3 { margin: 0 0 8px; font-size: 14px; }
-  .info p, .info li { font-size: 14px; color: #cbd2dc; }
-  .info p { margin: 0 0 8px; }
-  .info ul { margin: 0; padding-left: 18px; }
-  .info li { margin-bottom: 5px; }
-
-  /* --- cut calculator --- */
+  /* --- settings panel --- */
   .calc { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; max-width: 520px; }
   .calc .row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
   .calc label { flex: 0 0 130px; font-size: 14px; color: var(--dim); }
@@ -165,13 +155,6 @@
   /* range thumb overhangs the track ends; inset it so the thumb never escapes the card. */
   .calc input[type=range] { padding: 0; margin: 0 14px; background: none; border: none; }
   .calc input:focus, .calc select:focus { outline: none; border-color: var(--accent); }
-  .out { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px,1fr)); gap: 10px; margin: 18px 0 6px; }
-  .out .box { background: var(--panel-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; }
-  .out .box .k { font-size: 12px; color: var(--dim); }
-  .out .box .v { font-size: 26px; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -.5px; }
-  .out .box.hl { border-color: transparent; background: linear-gradient(135deg, rgba(255,176,32,.16), rgba(255,106,61,.16)); box-shadow: inset 0 0 0 1px var(--accent); }
-  .out .box.hl .v { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
-  .out .box.pro .v { color: var(--good); }
   .disc { color: var(--dim); font-size: 12px; margin-top: 10px; }
 
   /* --- timer --- */
@@ -197,14 +180,29 @@
     background: var(--panel-2); color: var(--text); border: 1px solid var(--line);
     border-radius: 9px; padding: 9px 15px; font: inherit; font-size: 14px; cursor: pointer;
   }
-  #dock button:hover { border-color: var(--accent); }
 
   .presets { display: flex; gap: 8px; flex-wrap: wrap; margin: 14px 0 0; }
   .presets button {
     background: var(--panel-2); color: var(--text); border: 1px solid var(--line);
     border-radius: 10px; padding: 12px 20px; font: inherit; font-size: 15px; cursor: pointer;
   }
-  .presets button:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* Hover effects only where a real pointer exists. On a touch screen a tapped
+     button keeps its :hover state until you tap elsewhere, which reads as stuck. */
+  @media (hover: hover) {
+    nav button:hover { color: var(--text); }
+    .exrow .ex a:hover { color: var(--accent-2); border-bottom-color: var(--accent-2); }
+    .rest-btn:hover { color: var(--accent); border-color: var(--accent); }
+    .card:hover { transform: translateY(-2px); border-color: #3a414d; }
+    .card h3 a:hover { color: var(--accent-2); }
+    .card .yt:hover { text-decoration: underline; }
+    #dock button:hover { border-color: var(--accent); }
+    .presets button:hover { border-color: var(--accent); color: var(--accent); }
+  }
+
+  /* Touch has no hover, so every control needs a pressed state instead. */
+  nav button:active, .chips button:active, .rest-btn:active,
+  #dock button:active, .presets button:active { transform: scale(.97); border-color: var(--accent); }
 
   /* --- mobile: nav becomes a bottom tab bar --- */
   @media (max-width: 640px) {
@@ -234,18 +232,25 @@
     #dock { bottom: var(--nav-h); padding-bottom: calc(10px + env(safe-area-inset-bottom, 0)); gap: 12px; }
     #dock .lbl { margin-right: 0; font-size: 12px; }
     .chips { position: static; background: none; padding: 0; }
-    .exrow { grid-template-columns: 24px 1fr; grid-template-areas: "chk ex" "meta meta"; row-gap: 10px; }
+    .exrow { grid-template-columns: 30px 1fr; grid-template-areas: "chk ex" "meta meta"; row-gap: 10px; }
     .exrow .chk { grid-area: chk; }
     .exrow .ex { grid-area: ex; }
     .exrow .meta { grid-area: meta; justify-content: flex-start; gap: 14px; flex-wrap: wrap; }
     .meta .wt, .meta .sr, .meta .rest { min-width: 0; }
     .meta .rest { text-align: left; }
+    /* Tapped mid-set, often with sweaty hands: 44px minimum. */
+    input[type=checkbox] { width: 24px; height: 24px; }
+    .rest-btn { padding: 11px 16px; font-size: 14px; min-height: 44px; }
+    #dock button { padding: 12px 16px; min-height: 44px; }
+    #clock { font-size: 22px; }
+    .presets { display: grid; grid-template-columns: repeat(auto-fit, minmax(94px, 1fr)); gap: 10px; }
+    .presets button { width: 100%; padding: 15px 0; min-height: 52px; }
   }
 
   @media print {
     :root { --bg:#fff; --panel:#fff; --panel-2:#fff; --line:#bbb; --text:#000; --dim:#555; }
     header { position: static; }
-    nav, #dock, .chips, .rest-btn, .info, .card .yt { display: none !important; }
+    nav, #dock, .chips, .rest-btn, .card .yt { display: none !important; }
     .day { break-inside: avoid; page-break-after: always; border: none; }
     .day .daybody { display: block !important; }
     .exrow { border: none; background: none; }
@@ -262,9 +267,8 @@
     </div>
     <nav>
       <button id="tab-program" aria-selected="true"><span class="ico">🏋️</span><span class="lab">Program</span></button>
-      <button id="tab-library" aria-selected="false"><span class="ico">📚</span><span class="lab">Library</span></button>
       <button id="tab-timer"   aria-selected="false"><span class="ico">⏱️</span><span class="lab">Timer</span></button>
-      <button id="tab-cut"     aria-selected="false"><span class="ico">🔥</span><span class="lab">Cut</span></button>
+      <button id="tab-library" aria-selected="false"><span class="ico">📚</span><span class="lab">Library</span></button>
     </nav>
   </div>
 </header>
@@ -276,15 +280,17 @@
     <h2>Your split</h2>
     <p class="sub">Mon Push A · Tue Pull A · Thu Push B · Fri Pull B — each muscle twice a week. Side delts on <b>both push days</b> for width; traps, rear delts and arms on the pull days. Each day ends with an arm pump — two triceps finishers on push days, biceps on pull days — so you look full for posing without cooking tomorrow's muscle.</p>
 
-    <div class="info">
-      <h3>How to grow while cutting</h3>
+    <details class="day">
+      <summary><span class="day-name">How to grow while cutting</span></summary>
+      <div class="daybody">
       <ul>
         <li><b>Progressive overload.</b> The weights below are your current loads. Every week, add reps or a small jump (2.5&nbsp;kg upper body) on presses and rows. Growth comes from the bar getting heavier over time — not the pump.</li>
-        <li><b>Eat in a deficit</b> (see the <b>Cut</b> tab) but keep protein high — that's what keeps the muscle on while the fat comes off. Cutting reveals the size; it doesn't build it, so keep lifting heavy.</li>
+        <li><b>Eat in a deficit</b> but keep protein high — that's what keeps the muscle on while the fat comes off. Cutting reveals the size; it doesn't build it, so keep lifting heavy.</li>
         <li><b>Last set of isolations</b> (raises, curls, pushdowns) — take it to the point you can't do another clean rep.</li>
         <li><b>Machine settings.</b> Next to the weight: <b>height</b> = your seat/chair height; <b>distance</b> = how far the seat or arms are set — the reach (e.g. how far the chest-press handles sit from you). Dial the same numbers every time so the loads compare week to week.</li>
       </ul>
-    </div>
+      </div>
+    </details>
 
     <div id="days"></div>
   </section>
@@ -300,9 +306,16 @@
   <section id="view-timer" hidden>
     <p class="eyebrow">Between sets</p>
     <h2>Rest timer</h2>
-    <p class="sub">Runs in the dock at the bottom — keeps counting while you browse other tabs. At zero it plays a loud alarm and vibrates your phone. Settings save on this device. On mobile keep this tab open (screen-awake helps) — background tabs slow the countdown.</p>
 
-    <div class="calc" style="margin-bottom:16px">
+    <!-- presets first: this is the one control used every set. Settings and the
+         explanatory text are reference, so they collapse below it. -->
+    <div class="presets" id="presets"></div>
+
+    <details class="day" style="margin-top:18px">
+      <summary><span class="day-name">Settings &amp; how it works</span></summary>
+      <div class="daybody">
+    <p class="sub">Runs in the dock at the bottom — keeps counting while you browse other tabs. At zero it plays a loud alarm and vibrates your phone. Settings save on this device. On mobile keep this tab open (screen-awake helps) — background tabs slow the countdown.</p>
+    <div class="calc" style="margin-bottom:0">
       <div class="row"><label for="t-vol">Volume</label>
         <input id="t-vol" type="range" min="0" max="100" value="33"></div>
       <div class="row"><label for="t-snd">Alarm sound</label>
@@ -318,37 +331,8 @@
       <p class="disc">Pick a preset alarm, or "Built-in beep". Add more by dropping an .mp3 into <code>/sounds</code> and adding a line to the <code>SOUNDS</code> list.</p>
       <p class="disc"><b>Background alert</b> fires a phone notification (with vibration) at zero so it reaches you even when you've switched to Spotify. Asks for notification permission when you turn it on; needs the https link. Still obeys Do Not Disturb.</p>
     </div>
-
-    <div class="presets" id="presets"></div>
-  </section>
-
-  <section id="view-cut" hidden>
-    <p class="eyebrow">Nutrition</p>
-    <h2>Cutting calculator</h2>
-    <p class="sub">Estimates the calories and protein to lose fat while holding onto muscle. Uses the Mifflin-St Jeor formula. Your numbers save on this device.</p>
-    <div class="calc">
-      <div class="row"><label for="c-sex">Sex</label>
-        <select id="c-sex"><option value="m">Male</option><option value="f">Female</option></select></div>
-      <div class="row"><label for="c-age">Age</label><input id="c-age" type="number" inputmode="numeric" value="25"></div>
-      <div class="row"><label for="c-wt">Weight (kg)</label><input id="c-wt" type="number" inputmode="decimal" value="75"></div>
-      <div class="row"><label for="c-ht">Height (cm)</label><input id="c-ht" type="number" inputmode="numeric" value="178"></div>
-      <div class="row"><label for="c-act">Activity</label>
-        <select id="c-act">
-          <option value="1.2">Sedentary (desk, no training)</option>
-          <option value="1.375">Light (1–3 sessions/wk)</option>
-          <option value="1.55" selected>Moderate (4–5 sessions/wk)</option>
-          <option value="1.725">Very active (6–7 + active job)</option>
-        </select></div>
-
-      <div class="out">
-        <div class="box"><div class="k">Maintenance</div><div class="v"><span id="o-tdee">—</span></div><div class="k">kcal / day</div></div>
-        <div class="box hl"><div class="k">Cut target (−20%)</div><div class="v"><span id="o-cut">—</span></div><div class="k">kcal / day</div></div>
-        <div class="box pro"><div class="k">Protein</div><div class="v"><span id="o-pro">—</span></div><div class="k">g / day</div></div>
-        <div class="box"><div class="k">Est. fat loss</div><div class="v"><span id="o-loss">—</span></div><div class="k">kg / week</div></div>
       </div>
-      <p class="disc" id="o-bmr"></p>
-      <p class="disc">Estimate only, not medical or dietary advice. Track your weight for 2 weeks and adjust: losing faster than ~1% of bodyweight per week means eat a bit more; not moving means eat a bit less.</p>
-    </div>
+    </details>
   </section>
 
 </main>
@@ -623,7 +607,7 @@ $("#chips").addEventListener("click", ev => {
 /* ---------------------------------------------------------------
    Tabs
 --------------------------------------------------------------- */
-const TABS = ["program", "library", "timer", "cut"];
+const TABS = ["program", "timer", "library"];
 function showTab(name) {
   TABS.forEach(t => {
     $("#view-" + t).hidden = t !== name;
@@ -912,52 +896,6 @@ $("#presets").innerHTML = [5, 30, 45, 60, 90, 120, 150, 180]
 })();
 
 /* ---------------------------------------------------------------
-   Cut calculator — Mifflin-St Jeor
---------------------------------------------------------------- */
-function computeCut({ sex, age, kg, cm, act }) {
-  const bmr = 10 * kg + 6.25 * cm - 5 * age + (sex === "m" ? 5 : -161);
-  const tdee = bmr * act;
-  const cut = tdee * 0.8;
-  return {
-    bmr: Math.round(bmr),
-    tdee: Math.round(tdee),
-    cut: Math.round(cut),
-    proteinLo: Math.round(1.6 * kg),
-    proteinHi: Math.round(2.2 * kg),
-    lossKg: +((tdee - cut) * 7 / 7700).toFixed(2)   // 7700 kcal ≈ 1 kg fat
-  };
-}
-
-const CUT_STORE = "vtaper-cut";
-const cutInputs = ["c-sex", "c-age", "c-wt", "c-ht", "c-act"];
-
-function renderCut() {
-  const kg = +$("#c-wt").value, cm = +$("#c-ht").value, age = +$("#c-age").value;
-  const dash = !(kg > 0 && cm > 0 && age > 0);
-  if (dash) {
-    ["o-tdee","o-cut","o-pro","o-loss"].forEach(id => $("#"+id).textContent = "—");
-    $("#o-bmr").textContent = "";
-    return;
-  }
-  const r = computeCut({ sex: $("#c-sex").value, age, kg, cm, act: +$("#c-act").value });
-  $("#o-tdee").textContent = r.tdee.toLocaleString();
-  $("#o-cut").textContent  = r.cut.toLocaleString();
-  $("#o-pro").textContent  = r.proteinLo + "–" + r.proteinHi;
-  $("#o-loss").textContent = r.lossKg;
-  $("#o-bmr").textContent  = "Resting burn (BMR): " + r.bmr.toLocaleString() + " kcal/day. Cut target is 20% under maintenance — a steady, muscle-sparing deficit.";
-  localStorage.setItem(CUT_STORE, JSON.stringify(cutInputs.reduce((o, id) => (o[id] = $("#"+id).value, o), {})));
-}
-
-(function initCut() {
-  try {
-    const saved = JSON.parse(localStorage.getItem(CUT_STORE) || "{}");
-    cutInputs.forEach(id => { if (saved[id] != null) $("#"+id).value = saved[id]; });
-  } catch {}
-  cutInputs.forEach(id => $("#"+id).addEventListener("input", renderCut));
-  renderCut();
-})();
-
-/* ---------------------------------------------------------------
    Boot + self-check (console only)
 --------------------------------------------------------------- */
 renderProgram();
@@ -980,12 +918,9 @@ renderLibrary();
     const d = DAYS.find(x => x.name === n);
     if (!d.work.some(w => byId[w.id].muscle === "side-delt")) errs.push(`${n}: no side-delt work`);
   });
-  // calculator sanity: 80kg/180cm/30/male => BMR 1780
-  const c = computeCut({ sex:"m", age:30, kg:80, cm:180, act:1.55 });
-  if (c.bmr !== 1780) errs.push(`computeCut BMR expected 1780, got ${c.bmr}`);
 
   if (errs.length) console.error("V-TAPER data errors:\n" + errs.join("\n"));
-  else console.log(`V-TAPER ok — ${EXERCISES.length} exercises, ${DAYS.length} days, cut calc verified.`);
+  else console.log(`V-TAPER ok — ${EXERCISES.length} exercises, ${DAYS.length} days`);
 })();
 </script>
 </body>
