@@ -37,7 +37,7 @@
   header .wrap { padding-bottom: 0; }
   /* the running timer dock is fixed over the bottom; add clearance so page content
      (e.g. the lower preset buttons) can scroll clear of it. */
-  body.dock-on .wrap { padding-bottom: 170px; }
+  body.dock-on main.wrap { padding-bottom: 170px; }
 
   /* --- header --- */
   header {
@@ -80,7 +80,11 @@
   .day[open] > summary::before { content: "▾"; }
   .day summary .day-name { font-size: 17px; font-weight: 700; }
   .day summary .tag { font-size: 11px; background: var(--panel-2); border: 1px solid var(--line); color: var(--dim); border-radius: 999px; padding: 3px 10px; }
-  .day summary .why { color: var(--dim); font-size: 13px; font-weight: 400; flex-basis: 100%; padding-left: 20px; }
+  /* the blurb is context for the day you are doing, not for scanning the list,
+     so it only shows once the card is open. */
+  .day summary .why { display: none; color: var(--dim); font-size: 13px; font-weight: 400; flex-basis: 100%; padding-left: 20px; }
+  .day[open] summary .why { display: block; }
+  .day summary .tag.today { background: var(--grad); color: #12140f; border-color: transparent; font-weight: 700; }
   .daybody { padding: 0 16px 16px; }
 
   .vol { display: flex; gap: 6px; flex-wrap: wrap; margin: 0 0 14px; padding-left: 2px; }
@@ -92,25 +96,37 @@
   /* --- exercise rows (responsive, no table) --- */
   .exlist { display: flex; flex-direction: column; gap: 8px; }
   .exrow {
-    display: grid; grid-template-columns: 26px 1fr auto; gap: 12px; align-items: center;
+    display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; align-items: center;
+    grid-template-areas: "ex ex" "meta meta" "sets rest";
     background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px;
-    padding: 11px 13px; position: relative;
+    padding: 12px 13px; position: relative;
   }
+  .exrow .ex { grid-area: ex; }
+  .exrow .meta { grid-area: meta; }
+  .exrow .sets { grid-area: sets; }
+  .exrow .rest { grid-area: rest; }
   .exrow.key { border-color: transparent; }
   .exrow.key::before {
     content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
     background: var(--grad); border-radius: 10px 0 0 10px;
   }
-  .exrow .chk { display: flex; align-items: center; justify-content: center; margin: 0; }
-  input[type=checkbox] { accent-color: var(--good); width: 18px; height: 18px; cursor: pointer; }
   .exrow .ex a { color: var(--text); text-decoration: none; font-weight: 500; border-bottom: 1px dotted var(--dim); }
   .exrow.key .ex a { color: var(--accent); }
   .exrow .ex .note { display: block; color: var(--dim); font-size: 12px; margin-top: 3px; }
-  .exrow .meta { display: flex; align-items: center; gap: 16px; }
-  .meta .wt { color: var(--good); font-weight: 700; font-variant-numeric: tabular-nums; min-width: 118px; white-space: nowrap; font-size: 14px; }
-  .meta .wt small { display: block; color: var(--dim); font-weight: 400; font-size: 11px; }
-  .meta .sr { color: var(--dim); font-variant-numeric: tabular-nums; min-width: 84px; white-space: nowrap; font-size: 14px; }
-  .meta .rest { min-width: 86px; text-align: right; }
+  .exrow .meta { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+
+  /* One pip per set. Tapping pip N logs sets 1..N and starts this row's rest. */
+  .sets { display: flex; gap: 7px; flex-wrap: wrap; }
+  .pip {
+    width: 40px; height: 40px; border-radius: 10px; cursor: pointer;
+    background: var(--panel); color: var(--dim); border: 1px solid var(--line);
+    font: inherit; font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums;
+  }
+  .pip[aria-pressed="true"] { background: var(--grad); color: #12140f; border-color: transparent; }
+  .meta .wt { color: var(--good); font-weight: 700; font-variant-numeric: tabular-nums; font-size: 15px; }
+  .meta .wt small { color: var(--dim); font-weight: 400; font-size: 11px; margin-left: 6px; }
+  .meta .sr { color: var(--dim); font-variant-numeric: tabular-nums; white-space: nowrap; font-size: 14px; }
+  .rest { text-align: right; }
   .exrow.done { opacity: .4; }
   .exrow.dim { opacity: .22; }
   .rest-btn {
@@ -122,7 +138,8 @@
   .chips {
     display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 18px;
     position: sticky; top: 70px; z-index: 10; padding: 8px 0;
-    background: rgba(11,13,16,.9); backdrop-filter: blur(8px);
+    /* opaque, not blurred: blur behind a sticky bar is a repaint/tearing source */
+    background: var(--bg);
   }
   .chips button {
     background: var(--panel-2); color: var(--dim); border: 1px solid var(--line);
@@ -201,13 +218,28 @@
   }
 
   /* Touch has no hover, so every control needs a pressed state instead. */
-  nav button:active, .chips button:active, .rest-btn:active,
+  nav button:active, .chips button:active, .rest-btn:active, .pip:active,
   #dock button:active, .presets button:active { transform: scale(.97); border-color: var(--accent); }
+
+  /* Wide screens have room to put the sets and rest beside the numbers instead
+     of under them, which halves the height of every exercise row. */
+  @media (min-width: 641px) {
+    .exrow {
+      grid-template-columns: 1fr auto auto;
+      grid-template-areas: "ex ex ex" "meta sets rest";
+      gap: 8px 16px;
+    }
+  }
+
+  /* Both fixed bars are permanently on screen. Without their own compositing
+     layer Android repaints them in step with the scrolling content and they
+     smear/tear during a fast scroll (worst on the nav's emoji glyphs). */
+  header nav, #dock { transform: translateZ(0); will-change: transform; backface-visibility: hidden; }
 
   /* --- mobile: nav becomes a bottom tab bar --- */
   @media (max-width: 640px) {
     .wrap { padding-bottom: calc(var(--nav-h) + 40px); }
-    body.dock-on .wrap { padding-bottom: calc(var(--nav-h) + 150px); }
+    body.dock-on main.wrap { padding-bottom: calc(var(--nav-h) + 150px); }
     /* backdrop-filter on header would make it the containing block for the
        fixed nav below (bottom:0 anchors to header, not the viewport). Drop it.
        Non-sticky on mobile: a sticky top header fights the browser's collapsing
@@ -232,14 +264,9 @@
     #dock { bottom: var(--nav-h); padding-bottom: calc(10px + env(safe-area-inset-bottom, 0)); gap: 12px; }
     #dock .lbl { margin-right: 0; font-size: 12px; }
     .chips { position: static; background: none; padding: 0; }
-    .exrow { grid-template-columns: 30px 1fr; grid-template-areas: "chk ex" "meta meta"; row-gap: 10px; }
-    .exrow .chk { grid-area: chk; }
-    .exrow .ex { grid-area: ex; }
-    .exrow .meta { grid-area: meta; justify-content: flex-start; gap: 14px; flex-wrap: wrap; }
-    .meta .wt, .meta .sr, .meta .rest { min-width: 0; }
-    .meta .rest { text-align: left; }
+    .exrow { row-gap: 10px; }
+    .meta .wt { font-size: 16px; }
     /* Tapped mid-set, often with sweaty hands: 44px minimum. */
-    input[type=checkbox] { width: 24px; height: 24px; }
     .rest-btn { padding: 11px 16px; font-size: 14px; min-height: 44px; }
     #dock button { padding: 12px 16px; min-height: 44px; }
     #clock { font-size: 22px; }
@@ -251,6 +278,7 @@
     :root { --bg:#fff; --panel:#fff; --panel-2:#fff; --line:#bbb; --text:#000; --dim:#555; }
     header { position: static; }
     nav, #dock, .chips, .rest-btn, .card .yt { display: none !important; }
+    .pip { background: none !important; color: #000 !important; border: 1px solid #bbb !important; }
     .day { break-inside: avoid; page-break-after: always; border: none; }
     .day .daybody { display: block !important; }
     .exrow { border: none; background: none; }
@@ -528,6 +556,8 @@ const mmss = s => Math.floor(s/60) + ":" + String(s%60).padStart(2, "0");
 /* ---------------------------------------------------------------
    RENDER: program
 --------------------------------------------------------------- */
+const WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
 function renderProgram() {
   $("#days").innerHTML = DAYS.map((d, di) => {
     const tally = {};
@@ -537,8 +567,9 @@ function renderProgram() {
     const rows = d.work.map((w, wi) => {
       const e = byId[w.id];
       const load = e.log ? e.log.split(" · ") : ["—"];
-      return `<div class="exrow ${w.key ? "key" : ""}" data-muscle="${e.muscle}" data-key="${di}:${wi}">
-        <label class="chk"><input type="checkbox" aria-label="Mark ${e.name} done"></label>
+      const pips = Array.from({ length: w.sets }, (_, i) =>
+        `<button class="pip" data-set="${i + 1}" aria-pressed="false">${i + 1}</button>`).join("");
+      return `<div class="exrow ${w.key ? "key" : ""}" data-muscle="${e.muscle}" data-key="${di}:${wi}" data-rest="${w.rest}" data-sets="${w.sets}">
         <div class="ex">
           <a href="${yt(e.name)}" target="_blank" rel="noopener">${e.name}</a>
           ${w.note ? `<span class="note">${w.note}</span>` : ""}
@@ -546,14 +577,17 @@ function renderProgram() {
         <div class="meta">
           <span class="wt">${load[0]}${load[1] ? `<small>${load[1]}</small>` : ""}</span>
           <span class="sr">${w.sets} × ${w.reps}</span>
-          <span class="rest"><button class="rest-btn" data-rest="${w.rest}">▶ ${fmtRest(w.rest)}</button></span>
         </div>
+        <div class="sets" role="group" aria-label="Sets for ${e.name}">${pips}</div>
+        <span class="rest"><button class="rest-btn" data-rest="${w.rest}">▶ ${fmtRest(w.rest)}</button></span>
       </div>`;
     }).join("");
 
-    return `<details class="day ${d.optional ? "optional" : ""}">
+    const isToday = d.day === WEEKDAYS[new Date().getDay()];
+    return `<details class="day ${d.optional ? "optional" : ""}" ${isToday ? "open" : ""}>
       <summary>
         <span class="day-name">${d.name}</span> <span class="tag">${d.day}</span>
+        ${isToday ? `<span class="tag today">Today</span>` : ""}
         <span class="tag">${d.work.length} exercises</span>
         <span class="why">${d.why}</span>
       </summary>
@@ -617,7 +651,8 @@ function showTab(name) {
 TABS.forEach(t => $("#tab-" + t).addEventListener("click", () => showTab(t)));
 
 /* ---------------------------------------------------------------
-   Checkboxes — persisted per day, auto-cleared on a new date.
+   Set tracking — how many sets of each exercise are done, persisted
+   per device and auto-cleared on a new date.
 --------------------------------------------------------------- */
 const today = () => new Date().toISOString().slice(0, 10);
 const STORE = "vtaper-done";
@@ -625,28 +660,44 @@ const STORE = "vtaper-done";
 function loadChecks() {
   try {
     const raw = JSON.parse(localStorage.getItem(STORE) || "{}");
-    return raw.date === today() ? raw : { date: today(), ids: [] };
-  } catch { return { date: today(), ids: [] }; }
+    // `sets` guard: a record written by an older build has `ids` instead.
+    if (raw.date === today() && raw.sets) return raw;
+  } catch {}
+  return { date: today(), sets: {} };
+}
+
+/* Paint one row's pips from a set count. Done in place — re-rendering the
+   program would rebuild the <details> and snap the open day shut. */
+function paintSets(row, n) {
+  row.querySelectorAll(".pip").forEach(p => {
+    p.setAttribute("aria-pressed", String(+p.dataset.set <= n));
+  });
+  row.classList.toggle("done", n >= +row.dataset.sets);
 }
 
 function restoreChecks() {
-  const { ids } = loadChecks();
-  ids.forEach(k => {
+  const { sets } = loadChecks();
+  Object.entries(sets).forEach(([k, n]) => {
     const row = document.querySelector(`.exrow[data-key="${k}"]`);
-    if (row) { row.querySelector("input").checked = true; row.classList.add("done"); }
+    if (row) paintSets(row, n);
   });
 }
 
-document.addEventListener("change", ev => {
-  const box = ev.target;
-  if (box.type !== "checkbox") return;
-  const row = box.closest(".exrow");
+/* Tap pip N: log sets 1..N and start this exercise's rest. Tap the highest
+   done pip again: step back one — the mis-tap escape hatch, no timer. */
+document.addEventListener("click", ev => {
+  const pip = ev.target.closest(".pip");
+  if (!pip) return;
+  const row = pip.closest(".exrow");
   if (!row || !row.dataset.key) return;
-  row.classList.toggle("done", box.checked);
   const state = loadChecks();
-  const set = new Set(state.ids);
-  box.checked ? set.add(row.dataset.key) : set.delete(row.dataset.key);
-  localStorage.setItem(STORE, JSON.stringify({ date: today(), ids: [...set] }));
+  const n = +pip.dataset.set;
+  const was = state.sets[row.dataset.key] || 0;
+  const now = n === was ? n - 1 : n;
+  state.sets[row.dataset.key] = now;
+  localStorage.setItem(STORE, JSON.stringify(state));
+  paintSets(row, now);
+  if (now > was) startTimer(+row.dataset.rest);
 });
 
 /* ---------------------------------------------------------------
@@ -905,6 +956,9 @@ renderLibrary();
   const errs = [];
   DAYS.forEach(d => d.work.forEach(w => {
     if (!byId[w.id]) errs.push(`${d.name}: unknown exercise id "${w.id}"`);
+    // the set pips and the tap-to-rest both read these
+    if (!(w.sets >= 1)) errs.push(`${d.name}/${w.id}: sets must be >= 1`);
+    if (!(w.rest > 0)) errs.push(`${d.name}/${w.id}: missing rest`);
   }));
   EXERCISES.forEach(e => {
     if (!MUSCLES[e.muscle]) errs.push(`${e.id}: unknown muscle "${e.muscle}"`);
