@@ -19,6 +19,12 @@
     --grad: linear-gradient(135deg, #ffb020, #ff6a3d);
     --radius: 14px;
     --nav-h: 66px;
+    /* The bottom bar reserves --nav-h of usable height PLUS whatever the device
+       keeps for its gesture bar. Everything anchored to the bottom offsets by
+       --nav-total, so the dock and the scroll clearance always agree with the
+       nav's real height. The 0px fallback matters: a unitless 0 voids calc(). */
+    --safe-b: env(safe-area-inset-bottom, 0px);
+    --nav-total: calc(var(--nav-h) + var(--safe-b));
   }
   * { box-sizing: border-box; }
   /* touch: no grey tap flash, and no 300ms double-tap-zoom delay on controls */
@@ -238,8 +244,8 @@
 
   /* --- mobile: nav becomes a bottom tab bar --- */
   @media (max-width: 640px) {
-    .wrap { padding-bottom: calc(var(--nav-h) + 40px); }
-    body.dock-on main.wrap { padding-bottom: calc(var(--nav-h) + 150px); }
+    .wrap { padding-bottom: calc(var(--nav-total) + 40px); }
+    body.dock-on main.wrap { padding-bottom: calc(var(--nav-total) + 150px); }
     /* backdrop-filter on header would make it the containing block for the
        fixed nav below (bottom:0 anchors to header, not the viewport). Drop it.
        Non-sticky on mobile: a sticky top header fights the browser's collapsing
@@ -248,20 +254,20 @@
     .brand { padding: 14px 0; }
     .brand h1 { letter-spacing: -.8px; }
     header nav {
-      position: fixed; left: 0; right: 0; bottom: 0; z-index: 70; height: var(--nav-h);
-      margin: 0; padding: 0 0 env(safe-area-inset-bottom, 0); gap: 0;
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 70; min-height: var(--nav-total);
+      margin: 0; padding: 0 0 var(--safe-b); gap: 0;
       background: var(--panel); border-top: 1px solid var(--line);
     }
     nav button {
       flex: 1; flex-direction: column; gap: 3px; justify-content: center;
       background: none; border: none; border-radius: 0; padding: 8px 0; font-size: 11px; color: var(--dim);
     }
-    nav button .ico { font-size: 20px; }
+    nav button .ico { font-size: 20px; height: 22px; display: grid; place-items: center; }
     nav button[aria-selected="true"] { background: none; color: var(--accent); font-weight: 700; box-shadow: inset 0 3px 0 -1px var(--accent); }
     nav button[aria-selected="true"] .lab { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
     /* label's margin-right:auto spreads the dock edge-to-edge and looks stretched;
        drop it and center the ring + buttons as a tight group. */
-    #dock { bottom: var(--nav-h); padding-bottom: calc(10px + env(safe-area-inset-bottom, 0)); gap: 12px; }
+    #dock { bottom: var(--nav-total); padding-bottom: 10px; gap: 12px; }
     #dock .lbl { margin-right: 0; font-size: 12px; }
     .chips { position: static; background: none; padding: 0; }
     .exrow { row-gap: 10px; }
@@ -480,13 +486,13 @@ const EXERCISES = [
           "Elbow pinned to your side, curl from a full stretch and squeeze at the top.",
           "Control the way down — no swinging from the shoulder or hips."],
     miss:"Rocking the body to fling the cable up instead of curling with the biceps." },
-  { id:"cable-tricep-extension", name:"Cable Tricep Overhead Extension (Rope)", muscle:"triceps", equip:"Rope", log:"15 kg × 12 · distance 4",
+  { id:"cable-tricep-extension", name:"Cable Tricep Overhead Extension (Rope)", muscle:"triceps", equip:"Rope", log:"17.5 kg × 12 · distance 4",
     cues:["Rope, not a bar — the rope lets your hands split apart at the top for a harder squeeze.",
           "Your setting: distance 4. Overhead — upper arms locked beside your head, elbows pointing forward.",
           "Stretch deep behind the head, then extend to a straight arm and squeeze.",
           "First of the two triceps finishers: the overhead stretch is the position that dies first once you're fatigued, so it gets the fresher end."],
     miss:"Letting the elbows flare and drift forward — that turns it into a press and pulls the long head out of the stretch." },
-  { id:"pushdown", name:"Cable Tricep Pushdown (Rope)", muscle:"triceps", equip:"Rope", log:"15 kg × 12",
+  { id:"pushdown", name:"Cable Tricep Pushdown (Rope)", muscle:"triceps", equip:"Rope", log:"17.5 kg × 12",
     cues:["Rope, not a bar — spread the ends apart at the bottom to finish the squeeze.",
           "Elbows locked at the ribs the whole set — only the forearms move.",
           "Push all the way to a straight arm and squeeze; triceps are two-thirds of the arm.",
