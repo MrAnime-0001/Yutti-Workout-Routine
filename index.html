@@ -364,7 +364,7 @@
         <button id="t-test" class="rest-btn" style="flex:0 0 auto;padding:8px 16px;font-size:14px">▶ Test alarm</button></div>
       <p class="disc">Pick a preset alarm, or "Built-in beep". Add more by dropping an .mp3 into <code>/sounds</code> and adding a line to the <code>SOUNDS</code> list.</p>
       <p class="disc"><b>Background alert</b> fires a phone notification (with vibration) at zero so it reaches you even when you've switched to Spotify. Asks for notification permission when you turn it on; needs the https link. Still obeys Do Not Disturb.</p>
-      <p class="disc">With it on, a silent <b>countdown</b> also sits in the notification shade while you rest. The phone freezes background pages to save battery, so that number can sit stale once you switch apps — the alarm at zero is still the thing to trust.</p>
+      <p class="disc">With it on, rests between <b>1.5 and 3 minutes</b> also put a silent <b>countdown</b> in the notification shade, updating 5 times across the rest (every 18s on a 1.5 min rest, every 36s on a 3 min one). Shorter rests just get the alarm. The phone freezes background pages to save battery, so that number can sit stale once you switch apps — the alarm at zero is still the thing to trust.</p>
     </div>
       </div>
     </details>
@@ -817,15 +817,27 @@ function playAlarm() {
    timers hard, so after you switch away the number can sit stale until the page
    runs again. No web API hands the OS a self-ticking countdown — Android's
    setChronometerCountDown is native-only. Upgrade path: a wrapper app, or accept it. */
-let lastShown = -1;
+let lastBucket = -1;
+const NOTE_MIN = 90, NOTE_MAX = 180;   // only mid-length rests get a shade countdown
+const NOTE_COUNT = 5;                  // updates spread across the rest
 
 function canNotify() {
   return !!swReg && timerCfg().notif && "Notification" in window && Notification.permission === "granted";
 }
 
 function showCountdown(left) {
-  if (left === lastShown) return;   // paint() runs 4x a second; only write on a tick
-  lastShown = left;
+  // Short rests don't get one — you're still stood at the machine holding the phone.
+  // Anything longer than NOTE_MAX isn't a rest you sit through watching the shade.
+  if (totalSec < NOTE_MIN || totalSec > NOTE_MAX) {
+    if (lastBucket !== -1) clearCountdown();   // +30s pushed it out of range
+    return;
+  }
+  // paint() runs 4x a second, but each write crosses into Android's notification
+  // service. Bucket the remaining time into NOTE_COUNT slices so every rest gets
+  // the same number of updates regardless of length: 90s -> every 18s, 3min -> 36s.
+  const bucket = Math.ceil(left / (totalSec / NOTE_COUNT));
+  if (bucket === lastBucket) return;
+  lastBucket = bucket;
   if (!canNotify()) return;
   try {
     swReg.showNotification("Resting", {
@@ -840,7 +852,7 @@ function showCountdown(left) {
 /* Pull the countdown out of the shade when a rest is cut short. Not called after
    the alarm fires — that notification is the thing you want left sitting there. */
 function clearCountdown() {
-  lastShown = -1;
+  lastBucket = -1;
   if (!swReg) return;
   try {
     swReg.getNotifications({ tag: "vtaper-rest" })
