@@ -364,6 +364,7 @@
         <button id="t-test" class="rest-btn" style="flex:0 0 auto;padding:8px 16px;font-size:14px">▶ Test alarm</button></div>
       <p class="disc">Pick a preset alarm, or "Built-in beep". Add more by dropping an .mp3 into <code>/sounds</code> and adding a line to the <code>SOUNDS</code> list.</p>
       <p class="disc"><b>Background alert</b> fires a phone notification (with vibration) at zero so it reaches you even when you've switched to Spotify. Asks for notification permission when you turn it on; needs the https link. Still obeys Do Not Disturb.</p>
+      <p class="disc">With it on, a silent <b>countdown</b> also sits in the notification shade while you rest. The phone freezes background pages to save battery, so that number can sit stale once you switch apps — the alarm at zero is still the thing to trust.</p>
     </div>
       </div>
     </details>
@@ -809,6 +810,44 @@ function playAlarm() {
   }
 }
 
+/* Live countdown in the notification shade. Re-showing with the same tag replaces
+   the notification in place; silent + renotify:false updates it without re-buzzing.
+   The "Rest over" alarm reuses this tag, so it replaces the countdown at zero.
+   ponytail: this only ticks while the page gets CPU. Android throttles background
+   timers hard, so after you switch away the number can sit stale until the page
+   runs again. No web API hands the OS a self-ticking countdown — Android's
+   setChronometerCountDown is native-only. Upgrade path: a wrapper app, or accept it. */
+let lastShown = -1;
+
+function canNotify() {
+  return !!swReg && timerCfg().notif && "Notification" in window && Notification.permission === "granted";
+}
+
+function showCountdown(left) {
+  if (left === lastShown) return;   // paint() runs 4x a second; only write on a tick
+  lastShown = left;
+  if (!canNotify()) return;
+  try {
+    swReg.showNotification("Resting", {
+      body: mmss(left),
+      tag: "vtaper-rest",
+      renotify: false,
+      silent: true
+    });
+  } catch {}
+}
+
+/* Pull the countdown out of the shade when a rest is cut short. Not called after
+   the alarm fires — that notification is the thing you want left sitting there. */
+function clearCountdown() {
+  lastShown = -1;
+  if (!swReg) return;
+  try {
+    swReg.getNotifications({ tag: "vtaper-rest" })
+      .then(ns => ns.forEach(n => n.close())).catch(() => {});
+  } catch {}
+}
+
 /* Keep the phone screen awake while resting so the countdown keeps firing. */
 let wakeLock = null;
 async function requestWakeLock() {
@@ -834,6 +873,7 @@ function paint() {
     const frac = totalSec > 0 ? Math.max(0, Math.min(1, left / totalSec)) : 0;
     fg.style.strokeDashoffset = String(circ * (1 - frac));
   }
+  if (left > 0) showCountdown(left);
   if (left === 0) {
     clearInterval(tick); tick = null;
     clearRun();   // finished — don't re-ring on a later reload
@@ -841,7 +881,7 @@ function paint() {
     $("#dock-lbl").textContent = "Go";
     playAlarm();
     releaseWakeLock();
-    setTimeout(stopTimer, 5000);
+    setTimeout(() => stopTimer(true), 5000);   // keep the "Rest over" notification
   }
 }
 
@@ -873,19 +913,20 @@ function resumeTimer(savedEndAt, savedTotal) {
   if (timerCfg().wake) requestWakeLock();
 }
 
-function stopTimer() {
+function stopTimer(keepNotification) {
   clearInterval(tick); tick = null;
   clearRun();
   $("#dock").hidden = true; document.body.classList.remove("dock-on");
   $("#clock").classList.remove("ring");
   releaseWakeLock();
+  if (!keepNotification) clearCountdown();
 }
 
 document.addEventListener("click", ev => {
   const b = ev.target.closest(".rest-btn");
   if (b && b.dataset.rest) { ev.preventDefault(); startTimer(+b.dataset.rest); }
 });
-$("#t-stop").addEventListener("click", stopTimer);
+$("#t-stop").addEventListener("click", () => stopTimer());
 $("#t-add").addEventListener("click", () => {
   if (!tick) startTimer(30);
   else { endAt += 30000; totalSec += 30; saveRun(); $("#dock-lbl").textContent = "set " + mmss(totalSec); $("#clock").classList.remove("ring"); paint(); }
@@ -948,7 +989,7 @@ $("#presets").innerHTML = [5, 30, 45, 60, 90, 120, 150, 180]
     $("#clock").classList.add("ring");
     $("#dock-lbl").textContent = "Go";
     playAlarm();
-    setTimeout(stopTimer, 5000);
+    setTimeout(() => stopTimer(true), 5000);   // keep the "Rest over" notification
   }
 })();
 
